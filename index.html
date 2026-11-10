@@ -997,9 +997,14 @@
                 justify-content: space-around; align-items: stretch;
                 transform: translateY(110%);
                 visibility: hidden;
-                transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+                /* 出现立即翻转；消失延迟到滑出动画结束后再隐藏 */
+                transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0s linear 0.4s;
             }
-            body.has-navbar .bottom-tabbar { transform: translateY(0); visibility: visible; }
+            body.has-navbar .bottom-tabbar {
+                transform: translateY(0);
+                visibility: visible;
+                transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0s;
+            }
             .tab-item {
                 flex: 1;
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
