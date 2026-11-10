@@ -9,8 +9,8 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const SITE_URL = 'https://www.anliways.com';
-const FEED_TITLE = 'anliways 的博客';
-const FEED_DESC = 'anliways 的个人博客：技术见解、行业观察与深度思考随笔。';
+const FEED_TITLE = 'Anliways 的博客';
+const FEED_DESC = 'Anliways 的个人博客：技术见解、行业观察与深度思考随笔。';
 
 function escapeXml(s) {
     return String(s || '')
@@ -51,7 +51,7 @@ const items = posts.map(p => {
     return `    <item>
       <title>${escapeXml(p.title || p.id)}</title>
       <link>${escapeXml(link)}</link>
-      <guid isPermaLink="false">anliways-post-${escapeXml(p.id)}</guid>
+      <guid isPermaLink="false">Anliways-post-${escapeXml(p.id)}</guid>
       <pubDate>${pubDate}</pubDate>
       ${desc ? `<description>${escapeXml(desc)}</description>` : ''}
     </item>`;

@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>anliways | 个人主页</title>
-    <meta name="description" content="anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
+    <title>Anliways | 个人主页</title>
+    <meta name="description" content="Anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
     <link rel="canonical" href="https://www.anliways.com/">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="alternate" type="application/rss+xml" title="anliways 的博客" href="/rss.xml">
+    <link rel="alternate" type="application/rss+xml" title="Anliways 的博客" href="/rss.xml">
     <meta name="theme-color" content="#121212">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="anliways">
-    <meta property="og:title" content="anliways | 个人主页">
-    <meta property="og:description" content="anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
+    <meta property="og:site_name" content="Anliways">
+    <meta property="og:title" content="Anliways | 个人主页">
+    <meta property="og:description" content="Anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
     <meta property="og:url" content="https://www.anliways.com/">
     <meta property="og:image" content="https://www.anliways.com/assets/og-image.jpg">
     <meta property="og:locale" content="zh_CN">
@@ -1001,7 +1001,7 @@
         <div class="nav-container">
             <div class="nav-brand" onclick="toggleView('profile')">
                 <span class="brand-avatar">an</span>
-                <span class="brand-name">anliways</span>
+                <span class="brand-name">Anliways</span>
             </div>
             <div class="nav-right-group">
                 <div class="nav-links">
@@ -1028,7 +1028,7 @@
         </button>
 
         <div class="avatar-placeholder">an</div>
-        <h1 class="name">anliways</h1>
+        <h1 class="name">Anliways</h1>
         <p class="bio" data-zh="个人开发者 · 媒体人" data-en="Indie Developer · Content Creator">个人开发者 · 媒体人</p>
         
         <div class="links-container">
@@ -1108,7 +1108,7 @@
             <div class="about-hero-main">
                 <div class="about-hero-avatar">an</div>
                 <div class="about-hero-info">
-                    <h1 class="about-hero-title" data-zh="你好，我是 anliways 👋" data-en="Hello, I'm anliways 👋">你好，我是 anliways 👋</h1>
+                    <h1 class="about-hero-title" data-zh="你好，我是 Anliways 👋" data-en="Hello, I'm Anliways 👋">你好，我是 Anliways 👋</h1>
                     <div class="about-hero-subtitle">
                         <i class="ri-sparkling-line"></i>
                         <span data-zh="个人开发者 · 独立媒体人 · 效率探索者" data-en="Indie Developer · Independent Creator · Efficiency Explorer">个人开发者 · 独立媒体人 · 效率探索者</span>
@@ -1225,7 +1225,7 @@
     <!-- 全局独立全屏通栏底栏 -->
     <footer id="global-footer" class="site-footer hidden">
         <div class="footer-container">
-            <div class="footer-left" data-zh="Copyright © 2026 anliways. 保留所有权利。" data-en="Copyright © 2026 anliways. All rights reserved.">Copyright © 2026 anliways. 保留所有权利。</div>
+            <div class="footer-left" data-zh="Copyright © 2026 Anliways. 保留所有权利。" data-en="Copyright © 2026 Anliways. All rights reserved.">Copyright © 2026 Anliways. 保留所有权利。</div>
             <div class="footer-right">
                 <a href="#" onclick="toggleView('profile')" data-zh="返回首页" data-en="Home">返回首页</a>
                 <a href="https://github.com" target="_blank">GitHub</a>
@@ -1422,14 +1422,14 @@
             const activeNav = document.querySelector('.nav-link.active');
             if (activeNav) {
                 const navText = activeNav.getAttribute(`data-${currentLang}`) || activeNav.innerText;
-                document.title = `anliways | ${navText}`;
+                document.title = `Anliways | ${navText}`;
             } else {
-                document.title = currentLang === 'zh' ? "anliways | 个人主页" : "anliways | Home";
+                document.title = currentLang === 'zh' ? "Anliways | 个人主页" : "Anliways | Home";
             }
         }
 
         function copyWeChat() {
-            const wechatId = "anliways";
+            const wechatId = "Anliways";
             const msg = currentLang === 'zh' 
                 ? "微信号 '" + wechatId + "' 已成功复制到剪贴板！" 
                 : "WeChat ID '" + wechatId + "' copied to clipboard!";
@@ -1663,7 +1663,7 @@
         // 阅读态正文（复用全局 Markdown 排版）
         function buildReadingHTML(article, mdHTML) {
             const loadingText = currentLang === 'zh' ? '正在加载内容...' : 'Loading article...';
-            const author = article.author || 'anliways';
+            const author = article.author || 'Anliways';
             const body = (mdHTML !== null && mdHTML !== undefined) ? mdHTML : `<p style="color: #8E8E93;">${loadingText}</p>`;
             const minutes = article._minutes;
             const minuteText = minutes
@@ -2026,7 +2026,7 @@
 
             // 头像：导航栏品牌位、主页名片与关于页圆形同步替换
             if (pf.avatar) {
-                const img = `<img src="${root(pf.avatar)}" alt="anliways">`;
+                const img = `<img src="${root(pf.avatar)}" alt="Anliways">`;
                 document.querySelectorAll('.brand-avatar, .avatar-placeholder, .about-hero-avatar').forEach(el => { el.innerHTML = img; });
             }
 

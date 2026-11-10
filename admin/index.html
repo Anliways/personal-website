@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>管理后台 · anliways</title>
+<title>管理后台 · Anliways</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#121212; color:rgba(255,255,255,.87); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; min-height:100vh; }
@@ -75,7 +75,7 @@ label { display:block; font-size:12px; color:rgba(255,255,255,.5); margin:12px 0
 
 <!-- 登录 / 注册视图 -->
 <div id="login-view">
-  <h1 id="lv-title">🔐 anliways 管理后台</h1>
+  <h1 id="lv-title">🔐 Anliways 管理后台</h1>
   <p class="hint" id="lv-hint">请使用管理员账户登录。会话通过安全 Cookie 保持，关闭浏览器后仍然有效。</p>
 
   <div id="register-only" class="hidden">
@@ -148,7 +148,7 @@ label { display:block; font-size:12px; color:rgba(255,255,255,.5); margin:12px 0
       <div class="sub">发布时将同步写入 posts.json 与 posts/&lt;id&gt;.md，通过 CI 校验后自动更新 RSS</div>
       <div class="row2">
         <div><label>文章 ID（英文，唯一，决定链接）</label><input id="ptf-id" placeholder="my-new-post"></div>
-        <div><label>作者</label><input id="ptf-author" value="anliways"></div>
+        <div><label>作者</label><input id="ptf-author" value="Anliways"></div>
         <div><label>标题</label><input id="ptf-title-input"></div>
         <div><label>日期</label><input id="ptf-date"></div>
       </div>
@@ -194,7 +194,7 @@ label { display:block; font-size:12px; color:rgba(255,255,255,.5); margin:12px 0
       <div class="sec-head"><span class="sec-title">主页外观</span><span class="sec-hint">站点名称 · 背景图 / 遮罩 / 模糊</span><span class="sec-caret">▸</span></div>
       <div class="sec-body">
         <div class="row2">
-          <div><label>浏览器标签标题前缀（留空使用 anliways）</label><input id="stf-title" placeholder="anliways"></div>
+          <div><label>浏览器标签标题前缀（留空使用 Anliways）</label><input id="stf-title" placeholder="Anliways"></div>
         </div>
         <div class="sub" style="margin-top:10px;">背景图片与渐变二选一：两者都留空时恢复默认纯色暗夜背景；渐变非空时优先于图片</div>
         <div class="row2">
@@ -214,8 +214,8 @@ label { display:block; font-size:12px; color:rgba(255,255,255,.5); margin:12px 0
       <div class="sec-body">
         <div class="sub">均为可选：留空的字段继续使用页面内置文案；中英文分别对应语言切换</div>
         <div class="row2">
-          <div><label>主标题（中文）</label><input id="ab-title-zh" placeholder="你好，我是 anliways 👋"></div>
-          <div><label>主标题（英文）</label><input id="ab-title-en" placeholder="Hello, I'm anliways 👋"></div>
+          <div><label>主标题（中文）</label><input id="ab-title-zh" placeholder="你好，我是 Anliways 👋"></div>
+          <div><label>主标题（英文）</label><input id="ab-title-en" placeholder="Hello, I'm Anliways 👋"></div>
           <div><label>副标题（中文）</label><input id="ab-sub-zh" placeholder="个人开发者 · 独立媒体人 · 效率探索者"></div>
           <div><label>副标题（英文）</label><input id="ab-sub-en" placeholder="Indie Developer · Independent Creator · Efficiency Explorer"></div>
         </div>
@@ -297,7 +297,7 @@ async function apiCommit(files, message) {
 function setLoginMode(mode, registered) {
   loginMode = mode;
   const isReg = mode === 'register';
-  $('lv-title').textContent = isReg ? '🔧 创建管理员账户' : '🔐 anliways 管理后台';
+  $('lv-title').textContent = isReg ? '🔧 创建管理员账户' : '🔐 Anliways 管理后台';
   $('lv-hint').textContent = isReg
     ? '首位注册者将成为本站唯一管理员。密码经 scrypt 加盐哈希存储，请牢记。'
     : '请使用管理员账户登录。会话通过安全 Cookie 保持，关闭浏览器后仍然有效。';
@@ -481,7 +481,7 @@ async function openPostForm(idx) {
   if (idx >= 0) {
     const p = posts[idx];
     $('ptf-id').value = p.id; $('ptf-id').readOnly = true;
-    $('ptf-title-input').value = p.title || ''; $('ptf-author').value = p.author || 'anliways';
+    $('ptf-title-input').value = p.title || ''; $('ptf-author').value = p.author || 'Anliways';
     $('ptf-date').value = p.date || ''; $('ptf-summary').value = p.summary || '';
     $('ptf-status').textContent = '正在加载正文…';
     try {
@@ -490,7 +490,7 @@ async function openPostForm(idx) {
     } catch (e) { $('ptf-status').textContent = '正文加载失败：' + e.message; }
   } else {
     $('ptf-id').value = ''; $('ptf-id').readOnly = false;
-    $('ptf-title-input').value = ''; $('ptf-author').value = 'anliways';
+    $('ptf-title-input').value = ''; $('ptf-author').value = 'Anliways';
     $('ptf-date').value = zhDate(); $('ptf-summary').value = ''; $('ptf-body').value = '';
     $('ptf-status').textContent = '';
   }
@@ -507,7 +507,7 @@ $('ptf-save').onclick = async () => {
   if (!$('ptf-body').value.trim()) return $('ptf-status').textContent = '正文不能为空';
   const isNew = !pfEditPost;
   if (isNew && posts.some(p => p.id === id)) return $('ptf-status').textContent = 'ID 已存在';
-  const entry = { id, title, date: $('ptf-date').value.trim() || zhDate(), author: $('ptf-author').value.trim() || 'anliways' };
+  const entry = { id, title, date: $('ptf-date').value.trim() || zhDate(), author: $('ptf-author').value.trim() || 'Anliways' };
   const summary = $('ptf-summary').value.trim();
   if (summary) entry.summary = summary;
   const nextPosts = posts.filter(p => p.id !== id).concat([entry]);
