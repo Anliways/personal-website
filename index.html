@@ -2025,8 +2025,10 @@
             const pf = cfg.profile || {};
 
             // 头像：导航栏品牌位、主页名片与关于页圆形同步替换
+            // onerror 先换缓存参数重试一次（防瞬时网络抖动），仍失败则回退 "an" 文本占位
             if (pf.avatar) {
-                const img = `<img src="${root(pf.avatar)}" alt="Anliways">`;
+                const url = root(pf.avatar);
+                const img = `<img src="${url}" alt="Anliways" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split('?')[0]+'?r='+Date.now()}else{this.parentNode.textContent='an'}">`;
                 document.querySelectorAll('.brand-avatar, .avatar-placeholder, .about-hero-avatar').forEach(el => { el.innerHTML = img; });
             }
 
