@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>anliways | 个人主页</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- 核心引入：Markdown 实时转换器 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        /* ==================== 1. 全局基础与暗夜主题样式 ==================== */
+        html { scrollbar-gutter: stable; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body {
+            background-color: #121212; /* 深黑基底，避开 #000000 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: rgba(255, 255, 255, 0.87); /* 降低透明度至 87% 的纯白，防眩光 */
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 0; 
+        }
+        body.has-navbar { 
+            justify-content: flex-start; 
+        }
+        .hidden { display: none !important; }
+
+        /* 语言切换按钮组件 */
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.87);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #0a84ff;
+            color: #0a84ff;
+        }
+
+        /* ==================== 2. 暗色顶部导航栏 ==================== */
+        .top-navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; transform: translateY(-100%); opacity: 0; pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .top-navbar.nav-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .nav-container { width: 100%; max-width: 1200px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .brand-avatar { width: 28px; height: 28px; background: #2c2c2e; color: rgba(255, 255, 255, 0.87); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .brand-name { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: rgba(255, 255, 255, 0.87); }
+        .nav-right-group { display: flex; align-items: center; gap: 24px; }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-link { font-size: 14px; color: #8E8E93; text-decoration: none; font-weight: 500; cursor: pointer; padding: 4px 0; transition: color 0.2s ease; }
+        .nav-link:hover, .nav-link.active { color: #0a84ff; }
+
+        /* ==================== 3. 视图 1：个人主页菜单卡片 ==================== */
+        .profile-card { 
+            position: relative;
+            background: #1E1E1E; /* 浅黑卡片基底 */
+            width: calc(100% - 40px); max-width: 420px; 
+            padding: 40px 32px; border-radius: 24px; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); text-align: center; 
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            margin: 40px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .profile-lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .avatar-placeholder { width: 80px; height: 80px; background: #2c2c2e; color: rgba(255, 255, 255, 0.87); font-size: 32px; font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 24px auto; }
+        .name { font-size: 24px; font-weight: 600; margin-bottom: 8px; color: rgba(255, 255, 255, 0.87); }
+        .bio { font-size: 15px; color: #8E8E93; margin-bottom: 36px; }
+        .links-container { display: flex; flex-direction: column; gap: 14px; }
+        .link-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #2c2c2e; border: 1px solid transparent; border-radius: 14px; text-decoration: none; color: rgba(255, 255, 255, 0.87); font-size: 15px; font-weight: 500; transition: all 0.2s ease; cursor: pointer; }
+        .link-item:hover { background: #3a3a3c; border-color: rgba(255, 255, 255, 0.15); transform: scale(1.01); }
+        .link-left { display: flex; align-items: center; gap: 12px; }
+        .link-left i { font-size: 20px; color: #8E8E93; }
+        .arrow-icon { font-size: 16px; color: #8E8E93; transition: transform 0.2s ease; }
+        .link-item:hover .arrow-icon { transform: translateX(3px); color: #0a84ff; }
+
+        /* ==================== 4. 视图 2：项目橱窗 (Bento 矩阵 + 全端抽屉) ==================== */
+        .projects-grid-container {
+            width: 100%;
+            max-width: 1140px;
+            padding: 0 20px;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            margin-top: 104px;
+            margin-bottom: 50px;
+        }
+
+        .projects-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding: 0 4px;
+        }
+
+        .projects-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+
+        .projects-count { font-size: 12.5px; color: #8E8E93; }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .bento-card {
+            background: #1E1E1E;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 18px 18px 14px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+        }
+
+        .bento-card:focus-visible { border-color: rgba(10, 132, 255, 0.6); }
+
+        .bento-card.active {
+            border-color: rgba(10, 132, 255, 0.65);
+            box-shadow: 0 6px 22px rgba(10, 132, 255, 0.12);
+        }
+
+        .bento-head { display: flex; align-items: center; gap: 11px; }
+
+        .bento-icon {
+            width: 40px;
+            height: 40px;
+            background: #2c2c2e;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.87);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .bento-card:hover .bento-icon { background: #3a3a3c; }
+
+        .bento-card.active .bento-icon { background: #0a84ff; color: #ffffff; }
+
+        .bento-name { font-size: 15px; font-weight: 600; color: rgba(255, 255, 255, 0.87); }
+
+        .bento-desc {
+            font-size: 12.5px;
+            color: #8E8E93;
+            line-height: 1.55;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .bento-foot {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #8E8E93;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 11px;
+        }
+
+        .bento-foot i { font-size: 14px; transition: transform 0.2s ease, color 0.2s ease; }
+        .bento-card:hover .bento-foot { color: rgba(255, 255, 255, 0.7); }
+        .bento-card:hover .bento-foot i { transform: translateX(3px); color: #0a84ff; }
+        .bento-card.active .bento-foot { color: rgba(10, 132, 255, 0.85); }
+
+        /* Bento 响应式列数：3 → 2 → 1 */
+        @media (max-width: 980px) { .bento-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .projects-header { margin-bottom: 14px; }
+        }
+
+        .detail-header-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .detail-large-icon {
+            width: 64px;
+            height: 64px;
+            background: #2c2c2e;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.87);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .detail-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.87);
+            letter-spacing: -0.5px;
+        }
+
+        .detail-desc {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .integrated-section {
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .integrated-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8E8E93;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .integrated-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .integrated-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            background: #2c2c2e;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.87);
+            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+        }
+
+        .integrated-card:hover {
+            background: #3a3a3c;
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .integrated-card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .integrated-card-icon {
+            font-size: 20px;
+            color: #8E8E93;
+            flex-shrink: 0;
+            transition: color 0.2s ease;
+        }
+
+        .integrated-card:hover .integrated-card-icon {
+            color: #0a84ff;
+        }
+
+        .integrated-card-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .integrated-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .integrated-card-desc {
+            font-size: 12px;
+            color: #8E8E93;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .integrated-card-arrow {
+            font-size: 16px;
+            color: #8E8E93;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .integrated-card:hover .integrated-card-arrow {
+            transform: translateX(3px);
+            color: #0a84ff;
+        }
+
+        /* ==================== 5. 视图 3：博客文章（列表 + 沉浸阅读页） ==================== */
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
+
+        .blog-page {
+            width: 100%;
+            max-width: 1140px;
+            padding: 0 20px;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            margin-top: 104px;
+            margin-bottom: 50px;
+        }
+
+        /* 列表态：居中编辑式卡片流 */
+        .blog-index { max-width: 760px; margin: 0 auto; }
+        .blog-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding: 0 4px;
+        }
+        .blog-title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; color: rgba(255, 255, 255, 0.87); }
+        .blog-count { font-size: 12.5px; color: #8E8E93; }
+        .blog-cards { display: flex; flex-direction: column; gap: 13px; }
+        .blog-card {
+            background: #1E1E1E;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            padding: 18px 20px;
+            cursor: pointer;
+            outline: none;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .blog-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+        }
+        .blog-card:focus-visible { border-color: rgba(10, 132, 255, 0.6); }
+        .blog-card.active {
+            border-color: rgba(10, 132, 255, 0.65);
+            box-shadow: 0 6px 22px rgba(10, 132, 255, 0.12);
+        }
+        .blog-card-meta { font-size: 11.5px; color: #8E8E93; }
+        .blog-card-title {
+            font-size: 16.5px;
+            font-weight: 600;
+            line-height: 1.45;
+            letter-spacing: -0.2px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+        .blog-card.active .blog-card-title { color: #0a84ff; }
+        .blog-card-excerpt {
+            font-size: 13px;
+            color: #8E8E93;
+            line-height: 1.6;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .blog-card-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #8E8E93;
+            margin-top: 4px;
+            transition: color 0.2s ease;
+        }
+        .blog-card-more i { font-size: 14px; transition: transform 0.2s ease, color 0.2s ease; }
+        .blog-card:hover .blog-card-more { color: #0a84ff; }
+        .blog-card:hover .blog-card-more i { transform: translateX(3px); }
+        .blog-card.active .blog-card-more { color: rgba(10, 132, 255, 0.85); }
+        .blog-empty { color: #8E8E93; font-size: 14px; padding: 30px 4px; }
+
+        /* 阅读态：固定进度条 + 居中阅读列 */
+        .blog-reading { position: relative; }
+        .reading-progress {
+            position: fixed;
+            top: 64px; left: 0; right: 0;
+            height: 3px;
+            z-index: 900;
+            pointer-events: none;
+        }
+        .reading-progress span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(10, 132, 255, 0.65), #0a84ff);
+            border-radius: 0 2px 2px 0;
+            transition: width 0.1s linear;
+        }
+        .reading-col { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+        .reading-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #8E8E93;
+            cursor: pointer;
+            margin-bottom: 22px;
+            transition: color 0.2s ease;
+        }
+        .reading-back:hover { color: #0a84ff; }
+        .reading-back i { font-size: 18px; transition: transform 0.2s ease; }
+        .reading-back:hover i { transform: translateX(-3px); }
+        .reading-title {
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1.35;
+            letter-spacing: -0.6px;
+            color: rgba(255, 255, 255, 0.87);
+            margin-bottom: 14px;
+        }
+        .reading-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: #8E8E93;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 28px;
+        }
+        .reading-meta-item { display: flex; align-items: center; gap: 5px; }
+        .reading-meta-item i { font-size: 15px; }
+
+        /* 阅读正文（Markdown） */
+        .reading-body { font-size: 16px; color: rgba(255, 255, 255, 0.87); line-height: 1.75; }
+        .reading-body p { margin-bottom: 16px; }
+        .reading-body h1, .reading-body h2, .reading-body h3 { color: rgba(255, 255, 255, 0.87); margin: 30px 0 14px 0; font-weight: 600; }
+        .reading-body h1 { font-size: 23px; }
+        .reading-body h2 { font-size: 20px; }
+        .reading-body h3 { font-size: 18px; }
+        .reading-body ul, .reading-body ol { padding-left: 22px; margin-bottom: 18px; }
+        .reading-body li { margin-bottom: 8px; }
+        .reading-body code { background: #2c2c2e; padding: 3px 6px; border-radius: 6px; font-size: 14px; font-family: monospace; color: #e0e0e0; }
+        .reading-body pre { background: #2c2c2e; padding: 16px; border-radius: 12px; overflow-x: auto; margin-bottom: 18px; }
+        .reading-body pre code { background: transparent; padding: 0; font-size: 13px; }
+        .reading-body img { max-width: 100%; border-radius: 12px; margin: 16px 0; }
+        .reading-body blockquote { border-left: 4px solid #3a3a3c; padding-left: 16px; color: #8E8E93; font-style: italic; margin-bottom: 18px; }
+        .reading-body a { color: #0a84ff; text-decoration: none; }
+        .reading-body a:hover { text-decoration: underline; }
+        .reading-body hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 26px 0; }
+
+        /* 上一篇 / 下一篇 */
+        .reading-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 46px; }
+        .reading-nav-item {
+            background: #1E1E1E;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        .reading-nav-item:hover { border-color: rgba(10, 132, 255, 0.5); transform: translateY(-2px); }
+        .reading-nav-item:focus-visible { border-color: rgba(10, 132, 255, 0.6); }
+        .reading-nav-item.disabled { cursor: default; opacity: 0.45; }
+        .reading-nav-item.disabled:hover { border-color: rgba(255, 255, 255, 0.05); transform: none; }
+        .reading-nav-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #8E8E93;
+            letter-spacing: 0.3px;
+        }
+        .reading-nav-label i { font-size: 13px; }
+        .reading-nav-title {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.87);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .reading-nav-item:hover .reading-nav-title { color: #0a84ff; }
+        .reading-nav-item.next { text-align: right; }
+        .reading-nav-item.next .reading-nav-label { justify-content: flex-end; }
+
+        /* ==================== 5.5 抽屉详情 & 内容过渡 ==================== */
+
+        /* 微型胶囊标签 (Micro-badges)：低调精致，不打破极简调性 */
+        .pj-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+        .pj-badge {
+            font-size: 10.5px; font-weight: 500; letter-spacing: 0.3px; line-height: 1.5;
+            color: rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 1.5px 8px; border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+        .bento-card:hover .pj-badge { color: rgba(255, 255, 255, 0.72); }
+        .bento-card.active .pj-badge { color: rgba(10, 132, 255, 0.9); background: rgba(10, 132, 255, 0.08); border-color: rgba(10, 132, 255, 0.28); }
+        .detail-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+        .detail-title-wrap .detail-title { line-height: 1.25; }
+
+        /* 详情面板内容切换过渡 */
+        @keyframes detailSwap { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .swap-anim { animation: detailSwap 0.32s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        /* ==================== 移动端 Slide-over Drawer ==================== */
+        .drawer-backdrop {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            opacity: 0; pointer-events: none; transition: opacity 0.32s ease; z-index: 1500;
+        }
+        .drawer-backdrop.visible { opacity: 1; pointer-events: auto; }
+        .drawer {
+            position: fixed; top: 0; right: 0; bottom: 0; width: min(92vw, 480px);
+            background: #1c1c1e; border-left: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: -24px 0 64px rgba(0, 0, 0, 0.45);
+            z-index: 1600; display: flex; flex-direction: column;
+            transform: translateX(105%); visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.4s;
+        }
+        .drawer.open { transform: translateX(0); visibility: visible; transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
+        .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 14px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0; }
+        .drawer-title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; color: #8E8E93; display: flex; align-items: center; gap: 7px; }
+        .drawer-title i { font-size: 15px; }
+        .drawer-close {
+            width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
+            background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.87); font-size: 18px;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s ease; outline: none;
+        }
+        .drawer-close:hover { background: rgba(255, 255, 255, 0.16); }
+        .drawer-body { flex: 1; overflow-y: auto; padding: 28px 24px 44px; -webkit-overflow-scrolling: touch; }
+        .drawer .detail-title { font-size: 22px; }
+        body.drawer-open { overflow: hidden; }
+
+        /* ==================== 6. 视图 4：关于我 (单页落地页样式) ==================== */
+        .about-container {
+            width: 100%;
+            max-width: 1140px;
+            padding: 0 20px;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            margin-top: 104px;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Hero 头部个人简介卡片（左右布局） */
+        .about-hero {
+            background: #1E1E1E;
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 36px;
+        }
+
+        .about-hero-main {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            flex: 1;
+        }
+
+        .about-hero-avatar {
+            width: 110px;
+            height: 110px;
+            background: #2c2c2e;
+            color: rgba(255, 255, 255, 0.87);
+            font-size: 44px;
+            font-weight: 600;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .about-hero-info {
+            flex: 1;
+        }
+
+        .about-hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.8px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+
+        .about-hero-subtitle {
+            font-size: 16px;
+            color: #0a84ff;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .about-hero-desc {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .about-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .about-tag {
+            background: #2c2c2e;
+            color: rgba(255, 255, 255, 0.87);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 右侧社交/联系方式模块样式 */
+        .about-hero-socials {
+            flex-shrink: 0;
+            width: 270px;
+            padding-left: 32px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .socials-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8E8E93;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .socials-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #2c2c2e;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.87);
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .social-item:hover {
+            background: #3a3a3c;
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #0a84ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .social-item i {
+            font-size: 16px;
+            color: #8E8E93;
+            transition: color 0.2s ease;
+        }
+
+        .social-item:hover i {
+            color: #0a84ff;
+        }
+
+        .about-card {
+            background: #1E1E1E;
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .about-card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.87);
+            letter-spacing: -0.3px;
+        }
+
+        .about-card-title i {
+            font-size: 24px;
+            color: #0a84ff;
+        }
+
+        /* 「关于我」网格化热力贡献图 */
+        .heat-card { min-width: 0; }
+        .heat-meta { margin: -8px 0 16px; }
+        .heat-stats { font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 500; }
+        .heat-stats b { color: #0a84ff; font-weight: 600; }
+        .heat-scroll { overflow-x: auto; padding-bottom: 4px; }
+        .heat-canvas { position: relative; display: inline-block; min-width: max-content; }
+        .heat-months { position: relative; height: 16px; margin-left: 30px; }
+        .heat-month { position: absolute; top: 0; font-size: 10px; color: #8E8E93; white-space: nowrap; }
+        .heat-body { display: flex; gap: 6px; }
+        .heat-weekdays { display: flex; flex-direction: column; gap: 3px; width: 24px; flex-shrink: 0; }
+        .heat-weekdays span { height: 12px; line-height: 12px; font-size: 9.5px; color: #8E8E93; }
+        .heat-grid { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; }
+        .heat-cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255, 255, 255, 0.05); }
+        .heat-cell.lv1 { background: rgba(10, 132, 255, 0.22); }
+        .heat-cell.lv2 { background: rgba(10, 132, 255, 0.42); }
+        .heat-cell.lv3 { background: rgba(10, 132, 255, 0.66); }
+        .heat-cell.lv4 { background: #0a84ff; }
+        .heat-cell.future { background: transparent; }
+        .heat-cell:not(.future):hover { outline: 1px solid rgba(255, 255, 255, 0.4); }
+        .heat-legend { display: flex; align-items: center; gap: 5px; margin-top: 14px; font-size: 11px; color: #8E8E93; justify-content: flex-end; }
+        .heat-legend .heat-cell { width: 10px; height: 10px; }
+        #view-about.about-animate .heat-cell:not(.future) { opacity: 0; animation: cellIn 0.35s ease forwards; animation-delay: calc(var(--col, 0) * 14ms); }
+        @keyframes cellIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+
+        /* 热力图悬浮提示 */
+        .heat-tip {
+            position: fixed; z-index: 2000; pointer-events: none;
+            background: #3a3a3c; border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9); font-size: 11.5px;
+            padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            opacity: 0; transform: translate(-50%, -100%);
+            transition: opacity 0.15s ease;
+        }
+        .heat-tip.show { opacity: 1; }
+
+        /* 底部 CTA 容器与双按钮样式 */
+        .cta-banner {
+            background: #2c2c2e;
+            color: rgba(255, 255, 255, 0.87);
+            padding: 40px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 24px;
+        }
+
+        .cta-text h3 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: rgba(255, 255, 255, 0.87);
+        }
+
+        .cta-text p {
+            font-size: 14px;
+            color: #8E8E93;
+        }
+
+        .cta-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            background: #0a84ff;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .cta-button:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+        }
+
+        /* 微信按钮专用调色 */
+        .cta-button-wechat {
+            background: #30d158;
+            color: #000000;
+        }
+
+        .cta-button-wechat:hover {
+            background: #28b84c;
+            transform: scale(1.02);
+        }
+
+        /* ==================== 7. 全屏通栏级底栏 ==================== */
+        .site-footer {
+            width: 100%;
+            background: transparent;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 30px 0;
+            margin-top: auto; 
+            display: flex;
+            justify-content: center;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .footer-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8E8E93;
+        }
+        .footer-left { font-weight: 400; }
+        .footer-right { display: flex; gap: 24px; }
+        .footer-right a { color: #8E8E93; text-decoration: none; transition: color 0.2s ease; }
+        .footer-right a:hover { color: #0a84ff; }
+
+        /* ==================== 8. 响应式布局 (移动端恢复极简平铺) ==================== */
+        @media (max-width: 850px) {
+            .blog-page { margin-top: 84px; }
+            .reading-title { font-size: 24px; }
+            .reading-nav { grid-template-columns: 1fr; }
+            .reading-body { font-size: 15.5px; }
+
+            /* 移动端适配 */
+            .heat-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+            /* 关于我 响应式适配 */
+            .about-hero { flex-direction: column; text-align: center; padding: 36px 24px; gap: 24px; }
+            .about-hero-main { flex-direction: column; gap: 20px; width: 100%; }
+            .about-hero-info { display: flex; flex-direction: column; align-items: center; }
+            .about-hero-socials {
+                width: 100%;
+                padding-left: 0;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                padding-top: 24px;
+            }
+            .socials-grid { grid-template-columns: repeat(4, 1fr); }
+            .about-tags { justify-content: center; }
+            .about-card { padding: 28px 24px; }
+            .cta-banner { flex-direction: column; gap: 20px; text-align: center; padding: 32px 24px; }
+            .cta-buttons { justify-content: center; width: 100%; }
+
+            .footer-container { flex-direction: column; gap: 12px; text-align: center; padding: 0 24px; }
+        }
+
+        @media (max-width: 640px) { .nav-container { padding: 0 24px; } .nav-links { gap: 16px; } .brand-name { display: none; } }
+        @media (max-width: 500px) {
+            .socials-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* 无障碍：尊重系统减弱动态效果偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航（全屏通栏） -->
+    <nav id="top-navbar" class="top-navbar">
+        <div class="nav-container">
+            <div class="nav-brand" onclick="toggleView('profile')">
+                <span class="brand-avatar">an</span>
+                <span class="brand-name">anliways</span>
+            </div>
+            <div class="nav-right-group">
+                <div class="nav-links">
+                    <a id="nav-link-profile" class="nav-link" onclick="toggleView('profile')" data-zh="主页菜单" data-en="Home">主页菜单</a>
+                    <a id="nav-link-projects" class="nav-link" onclick="toggleView('projects')" data-zh="项目橱窗" data-en="Projects">项目橱窗</a>
+                    <a id="nav-link-blog" class="nav-link" onclick="toggleView('blog')" data-zh="博客文章" data-en="Blog">博客文章</a>
+                    <a id="nav-link-about" class="nav-link" onclick="toggleView('about')" data-zh="关于我" data-en="About">关于我</a>
+                </div>
+                <!-- 导航栏中英文切换按钮 -->
+                <button class="lang-btn" onclick="toggleLanguage()">
+                    <i class="ri-global-line"></i>
+                    <span class="lang-btn-text">EN</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 视图 1：起始页 -->
+    <div id="view-profile" class="profile-card">
+        <!-- 主页极简中英文切换按钮 -->
+        <button class="lang-btn profile-lang-switcher" onclick="toggleLanguage()">
+            <i class="ri-global-line"></i>
+            <span class="lang-btn-text">EN</span>
+        </button>
+
+        <div class="avatar-placeholder">an</div>
+        <h1 class="name">anliways</h1>
+        <p class="bio" data-zh="个人开发者 · 媒体人" data-en="Indie Developer · Content Creator">个人开发者 · 媒体人</p>
+        
+        <div class="links-container">
+            <div class="link-item" onclick="toggleView('blog')">
+                <div class="link-left">
+                    <i class="ri-book-read-line"></i>
+                    <span data-zh="博客文章 (Blog)" data-en="Blog Articles">博客文章 (Blog)</span>
+                </div>
+                <i class="ri-arrow-right-s-line arrow-icon"></i>
+            </div>
+            <div class="link-item" onclick="toggleView('projects')">
+                <div class="link-left">
+                    <i class="ri-layout-grid-fill"></i>
+                    <span data-zh="项目橱窗 (Projects)" data-en="Project Showcase">项目橱窗 (Projects)</span>
+                </div>
+                <i class="ri-arrow-right-s-line arrow-icon"></i>
+            </div>
+            <div class="link-item" onclick="toggleView('about')">
+                <div class="link-left">
+                    <i class="ri-user-smile-line"></i>
+                    <span data-zh="关于我 (About Me)" data-en="About Me">关于我 (About Me)</span>
+                </div>
+                <i class="ri-arrow-right-s-line arrow-icon"></i>
+            </div>
+            <a href="mailto:anliways8@gmail.com" class="link-item">
+                <div class="link-left">
+                    <i class="ri-mail-line"></i>
+                    <span>anliways8@gmail.com</span>
+                </div>
+                <i class="ri-arrow-right-s-line arrow-icon"></i>
+            </a>
+            <div class="link-item" onclick="copyWeChat()">
+                <div class="link-left">
+                    <i class="ri-wechat-2-line"></i>
+                    <span data-zh="微信：anliways" data-en="WeChat: anliways">微信：anliways</span>
+                </div>
+                <i class="ri-file-copy-line arrow-icon" style="font-size: 14px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视图 2：项目橱窗 (Bento 卡片矩阵 + 全端抽屉) -->
+    <div id="view-projects" class="projects-grid-container hidden">
+        <div class="projects-header">
+            <h1 class="projects-title" data-zh="项目橱窗" data-en="Projects">项目橱窗</h1>
+            <span id="projects-count" class="projects-count"></span>
+        </div>
+        <div id="projects-grid" class="bento-grid"></div>
+    </div>
+
+    <!-- 视图 3：博客文章（列表态 + 沉浸阅读态） -->
+    <div id="view-blog" class="blog-page hidden">
+        <div id="blog-index">
+            <div class="blog-header">
+                <h1 class="blog-title" data-zh="博客文章" data-en="Blog">博客文章</h1>
+                <span id="blog-count" class="blog-count"></span>
+            </div>
+            <div id="blog-list" class="blog-cards"></div>
+        </div>
+        <div id="blog-reading" class="hidden">
+            <div class="reading-progress"><span id="reading-progress-bar"></span></div>
+            <div class="reading-col">
+                <div class="reading-back" id="reading-back" role="button" tabindex="0" onclick="closeReading(true)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();closeReading(true);}">
+                    <i class="ri-arrow-left-s-line"></i>
+                    <span data-zh="返回文章列表" data-en="Back to articles">返回文章列表</span>
+                </div>
+                <div id="reading-article"></div>
+                <div id="reading-nav" class="reading-nav"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视图 4：关于我 (单页落地页) -->
+    <div id="view-about" class="about-container hidden">
+        <!-- Hero 头部个人简介卡片 -->
+        <div class="about-hero">
+            <div class="about-hero-main">
+                <div class="about-hero-avatar">an</div>
+                <div class="about-hero-info">
+                    <h1 class="about-hero-title" data-zh="你好，我是 anliways 👋" data-en="Hello, I'm anliways 👋">你好，我是 anliways 👋</h1>
+                    <div class="about-hero-subtitle">
+                        <i class="ri-sparkles-line"></i>
+                        <span data-zh="个人开发者 · 独立媒体人 · 效率探索者" data-en="Indie Developer · Independent Creator · Efficiency Explorer">个人开发者 · 独立媒体人 · 效率探索者</span>
+                    </div>
+                    <p class="about-hero-desc" data-zh="热衷于探索极简审美与实用工具的交汇点。专注于全栈微服务构建、现代化 UI 设计系统以及数字自动化工作流优化。" data-en="Passionate about the intersection of minimalist aesthetics and practical utilities. Focusing on full-stack microservices, modern UI design systems, and digital automation workflows.">
+                        热衷于探索极简审美与实用工具的交汇点。专注于全栈微服务构建、现代化 UI 设计系统以及数字自动化工作流优化。
+                    </p>
+                    <div class="about-tags">
+                        <span class="about-tag"><i class="ri-map-pin-2-line"></i> <span data-zh="中国" data-en="China">中国</span></span>
+                        <span class="about-tag"><i class="ri-macbook-line"></i> <span data-zh="全栈开发" data-en="Full Stack">全栈开发</span></span>
+                        <span class="about-tag"><i class="ri-edit-line"></i> <span data-zh="深度内容创作" data-en="Content Creation">深度内容创作</span></span>
+                        <span class="about-tag"><i class="ri-compass-3-line"></i> <span data-zh="极简主义" data-en="Minimalism">极简主义</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片右侧：社交与联系方式 (8 个平台) -->
+            <div class="about-hero-socials">
+                <div class="socials-title" data-zh="社交与平台" data-en="Social & Links">社交与平台</div>
+                <div class="socials-grid">
+                    <a href="https://zhihu.com" target="_blank" class="social-item">
+                        <i class="ri-zhihu-line"></i>
+                        <span data-zh="知乎" data-en="Zhihu">知乎</span>
+                    </a>
+                    <a href="https://ruguoapp.com" target="_blank" class="social-item">
+                        <i class="ri-flashlight-line"></i>
+                        <span data-zh="即刻" data-en="Jike">即刻</span>
+                    </a>
+                    <a href="https://bilibili.com" target="_blank" class="social-item">
+                        <i class="ri-bilibili-line"></i>
+                        <span data-zh="哔哩哔哩" data-en="Bilibili">哔哩哔哩</span>
+                    </a>
+                    <a href="https://xiaohongshu.com" target="_blank" class="social-item">
+                        <i class="ri-book-open-line"></i>
+                        <span data-zh="小红书" data-en="RED">小红书</span>
+                    </a>
+                    <a href="https://douyin.com" target="_blank" class="social-item">
+                        <i class="ri-douyin-line"></i>
+                        <span data-zh="抖音" data-en="Douyin">抖音</span>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="social-item">
+                        <i class="ri-twitter-x-line"></i>
+                        <span>X</span>
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" class="social-item">
+                        <i class="ri-linkedin-fill"></i>
+                        <span data-zh="领英" data-en="LinkedIn">领英</span>
+                    </a>
+                    <a href="https://maimai.cn" target="_blank" class="social-item">
+                        <i class="ri-briefcase-line"></i>
+                        <span data-zh="脉脉" data-en="Maimai">脉脉</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片: 创作与构建热力贡献图 -->
+        <div class="about-card heat-card">
+            <div class="about-card-title">
+                <i class="ri-fire-line"></i>
+                <span data-zh="创作与构建热力" data-en="Creation & Build Activity">创作与构建热力</span>
+            </div>
+            <div class="heat-meta">
+                <span id="heat-stats" class="heat-stats"></span>
+            </div>
+            <div class="heat-scroll">
+                <div class="heat-canvas">
+                    <div class="heat-months" id="heat-months"></div>
+                    <div class="heat-body">
+                        <div class="heat-weekdays" id="heat-weekdays"></div>
+                        <div class="heat-grid" id="heat-grid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="heat-legend">
+                <span data-zh="少" data-en="Less">少</span>
+                <span class="heat-cell lv0"></span>
+                <span class="heat-cell lv1"></span>
+                <span class="heat-cell lv2"></span>
+                <span class="heat-cell lv3"></span>
+                <span class="heat-cell lv4"></span>
+                <span data-zh="多" data-en="More">多</span>
+            </div>
+        </div>
+
+        <!-- 底部 CTA 合作卡片 (含邮箱与微信双卡片) -->
+        <div class="cta-banner">
+            <div class="cta-text">
+                <h3 data-zh="寻找合作或有趣的交流？" data-en="Looking for collaboration or exchange?">寻找合作或有趣的交流？</h3>
+                <p data-zh="欢迎随时通过邮件或微信沟通项目合作、技术交流或媒体约稿。" data-en="Feel free to reach out via email or WeChat for collaboration or discussions.">欢迎随时通过邮件或微信沟通项目合作、技术交流或媒体约稿。</p>
+            </div>
+            <div class="cta-buttons">
+                <a href="mailto:anliways8@gmail.com" class="cta-button">
+                    <i class="ri-mail-send-line"></i> <span data-zh="发送邮件联系" data-en="Contact via Email">发送邮件联系</span>
+                </a>
+                <button class="cta-button cta-button-wechat" onclick="copyWeChat()">
+                    <i class="ri-wechat-2-line"></i> <span data-zh="微信联系" data-en="Contact via WeChat">微信联系</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 移动端 Slide-over 抽屉详情面板（项目/文章共用） -->
+    <div id="drawer-backdrop" class="drawer-backdrop" onclick="closeDrawer()"></div>
+    <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title-text">
+        <div class="drawer-header">
+            <div class="drawer-title"><i id="drawer-title-icon" class="ri-file-list-3-line"></i><span id="drawer-title-text">详情</span></div>
+            <button class="drawer-close" onclick="closeDrawer()" aria-label="关闭"><i class="ri-close-line"></i></button>
+        </div>
+        <div id="drawer-body" class="drawer-body"></div>
+    </aside>
+    <div id="heat-tip" class="heat-tip"></div>
+
+    <!-- 全局独立全屏通栏底栏 -->
+    <footer id="global-footer" class="site-footer hidden">
+        <div class="footer-container">
+            <div class="footer-left" data-zh="Copyright © 2026 anliways. 保留所有权利。" data-en="Copyright © 2026 anliways. All rights reserved.">Copyright © 2026 anliways. 保留所有权利。</div>
+            <div class="footer-right">
+                <a href="#" onclick="toggleView('profile')" data-zh="返回首页" data-en="Home">返回首页</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <a href="mailto:anliways8@gmail.com" data-zh="联系我" data-en="Contact">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 当前语言标识符: 'zh' 或 'en'
+        let currentLang = localStorage.getItem('site_lang') || 'zh';
+
+        // 支持中英文多语言的项目数据
+        const projectsData = [
+            {
+                id: "media-blog",
+                title_zh: "媒体博客",
+                title_en: "Media Blog",
+                icon: "ri-article-line",
+                desc_zh: "基于 Telegraph 架构打造的轻量级媒体博客，用于分享技术见解、行业观察以及深度思考随笔。",
+                desc_en: "A lightweight media blog built on Telegraph architecture for sharing technical insights, industry observations, and essay reflections.",
+                tags_zh: ["内容创作", "轻量架构"],
+                tags_en: ["Content", "Lightweight"],
+                subItems: [
+                    { title_zh: "技术周刊", title_en: "Tech Weekly", desc_zh: "前沿技术与开发动态", desc_en: "Frontier tech & dev news", icon: "ri-newspaper-line", link: "https://telegra.ph" },
+                    { title_zh: "思考随笔", title_en: "Essays & Thoughts", desc_zh: "个人感悟与行业观察", desc_en: "Reflections & observations", icon: "ri-draft-line", link: "https://telegra.ph" },
+                    { title_zh: "RSS 订阅", title_en: "RSS Feed", desc_zh: "实时订阅最新发布", desc_en: "Subscribe to updates", icon: "ri-rss-line", link: "https://telegra.ph" }
+                ]
+            },
+            {
+                id: "open-source",
+                title_zh: "开源主页",
+                title_en: "Open Source",
+                icon: "ri-github-fill",
+                desc_zh: "个人 GitHub 开源项目集合，包含各种前端 UI 组件、实用自动化工具以及效率脚本代码。",
+                desc_en: "Collection of open-source projects on GitHub, including UI components, automation scripts, and workflow utilities.",
+                tags_zh: ["开源", "全栈"],
+                tags_en: ["Open Source", "Full Stack"],
+                subItems: [
+                    { title_zh: "主仓库入口", title_en: "Main Repository", desc_zh: "查看所有开源代码仓库", desc_en: "View all source code repos", icon: "ri-github-line", link: "https://github.com" },
+                    { title_zh: "UI Toolkit", title_en: "UI Toolkit", desc_zh: "极简响应式设计组件", desc_en: "Minimalist responsive components", icon: "ri-palette-line", link: "https://github.com" },
+                    { title_zh: "CLI 工具集", title_en: "CLI Suite", desc_zh: "命令行自动化增强包", desc_en: "Command-line automation suite", icon: "ri-terminal-line", link: "https://github.com" }
+                ]
+            },
+            {
+                id: "scripts",
+                title_zh: "效率脚本",
+                title_en: "Utility Scripts",
+                icon: "ri-terminal-box-line",
+                desc_zh: "用于提升日常工作与开发效率的命令行工具及自动化脚本，覆盖工作流优化与批量处理。",
+                desc_en: "Command-line scripts to boost productivity, automating daily workflows and batch processing.",
+                tags_zh: ["自动化", "CLI 工具"],
+                tags_en: ["Automation", "CLI"],
+                subItems: [
+                    { title_zh: "文本清洗器", title_en: "Text Cleaner", desc_zh: "自动正则匹配与格式调整", desc_en: "Automated regex & formatting", icon: "ri-file-text-line", link: "#" },
+                    { title_zh: "媒体压缩器", title_en: "Media Compressor", desc_zh: "无损图片与视频批量转换", desc_en: "Batch image & video optimization", icon: "ri-file-zip-line", link: "#" }
+                ]
+            },
+            {
+                id: "design-res",
+                title_zh: "设计资源",
+                title_en: "Design Assets",
+                icon: "ri-image-edit-line",
+                desc_zh: "精选的高质量 UI 设计规范、矢量图标库以及界面素材，为开发与设计提供视觉灵感与资源支撑。",
+                desc_en: "Curated high-quality UI design guidelines, vector icon sets, and layout kits.",
+                tags_zh: ["UI 设计", "资源库"],
+                tags_en: ["Design", "Assets"],
+                subItems: [
+                    { title_zh: "Icon Set", title_en: "Icon Set", desc_zh: "定制化图标设计集", desc_en: "Custom iconography set", icon: "ri-remixicon-line", link: "#" },
+                    { title_zh: "Figma UI Kit", title_en: "Figma UI Kit", desc_zh: "Apple 风格组件库源文件", desc_en: "Apple-style design assets", icon: "ri-layout-4-line", link: "#" }
+                ]
+            },
+            {
+                id: "private-drive",
+                title_zh: "私有网盘",
+                title_en: "Cloud Drive",
+                icon: "ri-cloud-line",
+                desc_zh: "极速安全的云端文件存储与传输服务，支持多端数据同步、在线预览与私有化存储。",
+                desc_en: "Secure cloud storage and transfer service with multi-device sync and online preview.",
+                tags_zh: ["云存储", "多端同步"],
+                tags_en: ["Cloud", "Sync"],
+                subItems: [
+                    { title_zh: "公共分享区", title_en: "Public Transfer", desc_zh: "公开文件快传通道", desc_en: "Fast file sharing hub", icon: "ri-share-forward-line", link: "#" },
+                    { title_zh: "加密暂存", title_en: "Encrypted Storage", desc_zh: "高强度临时加密存储", desc_en: "Temporary encrypted vault", icon: "ri-lock-line", link: "#" }
+                ]
+            },
+            {
+                id: "api-services",
+                title_zh: "API 服务",
+                title_en: "API Services",
+                icon: "ri-code-s-slash-line",
+                desc_zh: "高效稳定的后端微服务 API 接口，提供数据转换、轻量解析以及智能化处理能力。",
+                desc_en: "Stable backend microservices providing data parsing, transformation, and lightweight logic.",
+                tags_zh: ["微服务", "API"],
+                tags_en: ["Microservice", "API"],
+                subItems: [
+                    { title_zh: "数据解析器", title_en: "Data Parser", desc_zh: "多格式转换支持", desc_en: "Multi-format translation", icon: "ri-braces-line", link: "#" },
+                    { title_zh: "服务状态", title_en: "Status Portal", desc_zh: "API 节点响应实时监控", desc_en: "Real-time uptime monitoring", icon: "ri-pulse-line", link: "#" }
+                ]
+            },
+            {
+                id: "data-monitor",
+                title_zh: "数据监控",
+                title_en: "Data Monitor",
+                icon: "ri-database-2-line",
+                desc_zh: "实时服务端与应用状态监控系统，提供可视化数据统计看板、请求分析及异常指标告警。",
+                desc_en: "Real-time application and server monitoring with dashboard analytics and alerts.",
+                tags_zh: ["数据可视化", "监控告警"],
+                tags_en: ["Data Viz", "Monitoring"],
+                subItems: [
+                    { title_zh: "Uptime 监控", title_en: "Uptime Dashboard", desc_zh: "节点可用率实时看板", desc_en: "Live node availability", icon: "ri-line-chart-line", link: "#" }
+                ]
+            },
+            {
+                id: "bot-deploy",
+                title_zh: "Bot 部署",
+                title_en: "Bot Deploy",
+                icon: "ri-robot-2-line",
+                desc_zh: "个人自动化机器人服务，集成多平台 API 支持智能消息推送、AI 对话交互及定时任务执行。",
+                desc_en: "Automated bots integrated across platforms for notifications, AI tasks, and scheduled workflows.",
+                tags_zh: ["自动化", "AI Bot"],
+                tags_en: ["Automation", "AI Bot"],
+                subItems: [
+                    { title_zh: "TG 提醒助手", title_en: "TG Assistant", desc_zh: "消息与日程自动化提醒", desc_en: "Automated schedule alerts", icon: "ri-telegram-line", link: "#" }
+                ]
+            },
+            {
+                id: "photo-gallery",
+                title_zh: "摄影集",
+                title_en: "Photo Gallery",
+                icon: "ri-camera-lens-line",
+                desc_zh: "捕捉生活中的精彩瞬间与风景影像，高清摄影作品展示与记录。",
+                desc_en: "Capturing moments and landscapes in high-definition photography.",
+                tags_zh: ["摄影", "影像记录"],
+                tags_en: ["Photography", "Visual"],
+                subItems: [
+                    { title_zh: "城市剪影", title_en: "Cityscape", desc_zh: "建筑与街道影像记录", desc_en: "Architectural & urban photography", icon: "ri-building-4-line", link: "#" },
+                    { title_zh: "自然风光", title_en: "Nature", desc_zh: "山川湖海摄影作品", desc_en: "Landscape photography", icon: "ri-landscape-line", link: "#" }
+                ]
+            }
+        ];
+
+        let blogData = [];
+
+        // 切换中英文全局状态
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('site_lang', currentLang);
+            applyLanguage();
+        }
+
+        // 应用语言设置更新页面 DOM
+        function applyLanguage() {
+            // 1. 更新所有包含 data-zh/data-en 的静态文本 DOM
+            document.querySelectorAll('[data-zh]').forEach(el => {
+                const text = el.getAttribute(`data-${currentLang}`);
+                if (text) el.innerText = text;
+            });
+
+            // 2. 更新语言按钮显示文案
+            document.querySelectorAll('.lang-btn-text').forEach(el => {
+                el.innerText = currentLang === 'zh' ? 'EN' : '中文';
+            });
+
+            // 3. 动态刷新项目橱窗
+            if (!document.getElementById('view-projects').classList.contains('hidden')) {
+                initProjects();
+            }
+
+            // 3.5 抽屉若正展示项目详情，同步刷新语言
+            if (drawerState.type === 'project') {
+                const drawerBody = document.getElementById('drawer-body');
+                const drawerProject = projectsData.find(p => p.id === drawerState.id);
+                if (drawerBody && drawerProject) drawerBody.innerHTML = buildProjectDetailHTML(drawerProject);
+            }
+
+            // 4. 动态刷新博客栏目（列表 + 阅读态）
+            if (!document.getElementById('view-blog').classList.contains('hidden')) {
+                initBlogIndex();
+                const readingEl = document.getElementById('blog-reading');
+                if (readingEl && !readingEl.classList.contains('hidden') && activeArticleId) {
+                    renderReading(activeArticleId);
+                }
+            }
+
+            // 5. 重建「关于我」可视化组件（文案随语言刷新）
+            buildHeatmap();
+
+            // 6. 更新 document.title
+            updateDocumentTitle();
+        }
+
+        function updateDocumentTitle() {
+            const activeNav = document.querySelector('.nav-link.active');
+            if (activeNav) {
+                const navText = activeNav.getAttribute(`data-${currentLang}`) || activeNav.innerText;
+                document.title = `anliways | ${navText}`;
+            } else {
+                document.title = currentLang === 'zh' ? "anliways | 个人主页" : "anliways | Home";
+            }
+        }
+
+        function copyWeChat() {
+            const wechatId = "anliways";
+            const msg = currentLang === 'zh' 
+                ? "微信号 '" + wechatId + "' 已成功复制到剪贴板！" 
+                : "WeChat ID '" + wechatId + "' copied to clipboard!";
+            navigator.clipboard.writeText(wechatId).then(() => {
+                alert(msg);
+            }).catch(err => { 
+                alert((currentLang === 'zh' ? "微信号为: " : "WeChat ID: ") + wechatId); 
+            });
+        }
+
+        // ==================== 移动端 Slide-over 抽屉 ====================
+        let drawerState = { type: null, id: null };
+        let lastFocusEl = null;
+        const drawerLabels = {
+            project: { zh: ['项目详情', 'ri-layout-grid-line'], en: ['Project Detail', 'ri-layout-grid-line'] }
+        };
+
+        function openDrawer(type, id) {
+            const drawer = document.getElementById('drawer');
+            const backdrop = document.getElementById('drawer-backdrop');
+            const body = document.getElementById('drawer-body');
+            if (!drawer || !backdrop || !body) return;
+
+            const label = (drawerLabels[type] && drawerLabels[type][currentLang]) || ['详情', 'ri-file-list-3-line'];
+            drawerState = { type, id };
+            drawer.querySelector('#drawer-title-icon').className = label[1];
+            drawer.querySelector('#drawer-title-text').innerText = label[0];
+
+            if (type === 'project') {
+                const project = projectsData.find(p => p.id === id);
+                if (project) body.innerHTML = buildProjectDetailHTML(project);
+            }
+
+            lastFocusEl = document.activeElement;
+            drawer.classList.add('open');
+            backdrop.classList.add('visible');
+            document.body.classList.add('drawer-open');
+            setTimeout(() => { const c = drawer.querySelector('.drawer-close'); if (c) c.focus(); }, 420);
+        }
+
+        function closeDrawer() {
+            const drawer = document.getElementById('drawer');
+            const backdrop = document.getElementById('drawer-backdrop');
+            if (!drawer || !backdrop) return;
+            if (!drawer.classList.contains('open') && !backdrop.classList.contains('visible')) return;
+            drawer.classList.remove('open');
+            backdrop.classList.remove('visible');
+            document.body.classList.remove('drawer-open');
+            drawerState = { type: null, id: null };
+            if (lastFocusEl && lastFocusEl.focus) lastFocusEl.focus();
+            lastFocusEl = null;
+        }
+
+        // ==================== 项目橱窗：列表 + 详情 ====================
+        // 微型胶囊标签（Micro-badges）
+        function renderBadges(tags) {
+            if (!tags || !tags.length) return '';
+            return `<div class="pj-badges">${tags.map(t => `<span class="pj-badge">${t}</span>`).join('')}</div>`;
+        }
+
+        // 详情模板：PC 右栏与移动端抽屉共用，保证两端内容一致
+        function buildProjectDetailHTML(project) {
+            const title = project[`title_${currentLang}`] || project.title_zh;
+            const desc = project[`desc_${currentLang}`] || project.desc_zh;
+            const badges = (currentLang === 'en' ? project.tags_en : project.tags_zh) || [];
+
+            let subHTML = '';
+            if (project.subItems && project.subItems.length) {
+                const cards = project.subItems.map(sub => {
+                    const sTitle = sub[`title_${currentLang}`] || sub.title_zh;
+                    const sDesc = sub[`desc_${currentLang}`] || sub.desc_zh;
+                    const link = sub.link || '#';
+                    return `
+                        <a class="integrated-card" href="${link}" ${link !== '#' ? 'target="_blank" rel="noopener"' : ''}>
+                            <div class="integrated-card-left">
+                                <i class="${sub.icon || 'ri-link'} integrated-card-icon"></i>
+                                <div class="integrated-card-info">
+                                    <span class="integrated-card-title">${sTitle}</span>
+                                    <span class="integrated-card-desc">${sDesc || ''}</span>
+                                </div>
+                            </div>
+                            <i class="ri-arrow-right-s-line integrated-card-arrow"></i>
+                        </a>`;
+                }).join('');
+                subHTML = `
+                    <div class="integrated-section">
+                        <div class="integrated-section-title">
+                            <i class="ri-apps-2-line"></i>
+                            <span>${currentLang === 'zh' ? '集成服务 / 直达入口' : 'Integrated Services / Quick Links'}</span>
+                        </div>
+                        <div class="integrated-grid">${cards}</div>
+                    </div>`;
+            }
+
+            return `
+                <div class="detail-header-group">
+                    <div class="detail-large-icon"><i class="${project.icon}"></i></div>
+                    <div class="detail-title-wrap">
+                        <h2 class="detail-title">${title}</h2>
+                        ${renderBadges(badges)}
+                    </div>
+                </div>
+                <p class="detail-desc">${desc}</p>
+                ${subHTML}`;
+        }
+
+        // 详情内容切换时的轻量过渡动画
+        function animateSwap(el) {
+            if (!el) return;
+            el.classList.remove('swap-anim');
+            void el.offsetWidth;
+            el.classList.add('swap-anim');
+        }
+
+        let activeProjectId = null;
+
+        function initProjects() {
+            const grid = document.getElementById('projects-grid');
+            if (!grid) return;
+            const countEl = document.getElementById('projects-count');
+
+            grid.innerHTML = '';
+
+            projectsData.forEach((project) => {
+                const title = project[`title_${currentLang}`] || project.title_zh;
+                const desc = project[`desc_${currentLang}`] || project.desc_zh;
+                const badges = (currentLang === 'en' ? project.tags_en : project.tags_zh) || [];
+                const entryCount = project.subItems ? project.subItems.length : 0;
+                const footText = currentLang === 'zh'
+                    ? `${entryCount} 个直达入口`
+                    : `${entryCount} quick link${entryCount > 1 ? 's' : ''}`;
+
+                const card = document.createElement('div');
+                card.className = 'bento-card' + (project.id === activeProjectId ? ' active' : '');
+                card.id = `pj-card-${project.id}`;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.onclick = () => handleProjectClick(project);
+                card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } };
+                card.innerHTML = `
+                    <div class="bento-head">
+                        <div class="bento-icon"><i class="${project.icon}"></i></div>
+                        <span class="bento-name">${title}</span>
+                    </div>
+                    <p class="bento-desc">${desc}</p>
+                    ${renderBadges(badges)}
+                    <div class="bento-foot"><span>${footText}</span><i class="ri-arrow-right-line"></i></div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (countEl) {
+                countEl.innerText = currentLang === 'zh'
+                    ? `${projectsData.length} 个项目 · 持续更新`
+                    : `${projectsData.length} projects · continuously updated`;
+            }
+        }
+
+        function handleProjectClick(project) {
+            activeProjectId = project.id;
+            document.querySelectorAll('.bento-card').forEach(el => el.classList.remove('active'));
+            const card = document.getElementById(`pj-card-${project.id}`);
+            if (card) card.classList.add('active');
+            // 点击卡片 → 滑出详情抽屉（桌面 / 移动统一交互）
+            openDrawer('project', project.id);
+        }
+
+        // ==================== 博客文章：列表 + 沉浸阅读页 ====================
+        let articleCache = {};
+        let activeArticleId = null;
+        let listScrollY = 0;
+
+        // 从 Markdown 提取纯文本（用于摘要与阅读时长估算）
+        function markdownPlainText(md) {
+            return md
+                .replace(/```[\s\S]*?```/g, ' ')
+                .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+                .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+                .replace(/[#>*`~_]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function makeExcerpt(md) {
+            const text = markdownPlainText(md);
+            return text.length > 84 ? `${text.slice(0, 84)}…` : text;
+        }
+
+        function estimateMinutes(md) {
+            return Math.max(1, Math.round(markdownPlainText(md).replace(/\s+/g, '').length / 400));
+        }
+
+        // 列表态：编辑式文章卡片流
+        function initBlogIndex() {
+            const list = document.getElementById('blog-list');
+            if (!list) return;
+            const countEl = document.getElementById('blog-count');
+
+            list.innerHTML = '';
+            blogData.forEach((article) => {
+                const excerpt = article.excerpt || article._excerpt || '';
+                const minutes = article._minutes;
+                const meta = currentLang === 'zh'
+                    ? `${article.date}${minutes ? ` · 约 ${minutes} 分钟` : ''}`
+                    : `${article.date}${minutes ? ` · ${minutes} min read` : ''}`;
+                const moreText = currentLang === 'zh' ? '阅读全文' : 'Read article';
+
+                const card = document.createElement('div');
+                card.className = 'blog-card' + (article.id === activeArticleId ? ' active' : '');
+                card.id = `blc-${article.id}`;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.onclick = () => openReading(article.id);
+                card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } };
+                card.innerHTML = `
+                    <span class="blog-card-meta">${meta}</span>
+                    <div class="blog-card-title">${article.title}</div>
+                    ${excerpt ? `<p class="blog-card-excerpt">${excerpt}</p>` : ''}
+                    <span class="blog-card-more">${moreText}<i class="ri-arrow-right-line"></i></span>
+                `;
+                list.appendChild(card);
+            });
+
+            if (countEl) {
+                countEl.innerText = currentLang === 'zh'
+                    ? `${blogData.length} 篇文章`
+                    : `${blogData.length} article${blogData.length > 1 ? 's' : ''}`;
+            }
+        }
+
+        // 阅读态正文（复用全局 Markdown 排版）
+        function buildReadingHTML(article, mdHTML) {
+            const loadingText = currentLang === 'zh' ? '正在加载内容...' : 'Loading article...';
+            const author = article.author || 'anliways';
+            const body = (mdHTML !== null && mdHTML !== undefined) ? mdHTML : `<p style="color: #8E8E93;">${loadingText}</p>`;
+            const minutes = article._minutes;
+            const minuteText = minutes
+                ? `<div class="reading-meta-item"><i class="ri-time-line"></i><span>${currentLang === 'zh' ? `约 ${minutes} 分钟` : `${minutes} min`}</span></div>`
+                : '';
+            return `
+                <h1 class="reading-title">${article.title}</h1>
+                <div class="reading-meta">
+                    <div class="reading-meta-item"><i class="ri-calendar-todo-line"></i><span>${article.date}</span></div>
+                    <div class="reading-meta-item"><i class="ri-user-line"></i><span>${author}</span></div>
+                    ${minuteText}
+                </div>
+                <div id="reading-body" class="reading-body">${body}</div>`;
+        }
+
+        function renderReading(articleId) {
+            const article = blogData.find(b => b.id === articleId);
+            if (!article) return;
+            const box = document.getElementById('reading-article');
+            if (box) box.innerHTML = buildReadingHTML(article, articleCache[articleId] || null);
+            renderReadingNav(article);
+            updateReadingProgress();
+        }
+
+        // 上一篇（更早）/ 下一篇（更新）
+        function renderReadingNav(article) {
+            const nav = document.getElementById('reading-nav');
+            if (!nav) return;
+            const idx = blogData.findIndex(b => b.id === article.id);
+            const older = idx < blogData.length - 1 ? blogData[idx + 1] : null;
+            const newer = idx > 0 ? blogData[idx - 1] : null;
+
+            nav.innerHTML = `
+                <div class="reading-nav-item${older ? '' : ' disabled'}" ${older ? `data-nav="${older.id}" role="button" tabindex="0"` : ''}>
+                    <span class="reading-nav-label"><i class="ri-arrow-left-line"></i><span>${currentLang === 'zh' ? '上一篇' : 'Previous'}</span></span>
+                    <span class="reading-nav-title">${older ? older.title : (currentLang === 'zh' ? '已是最后一篇' : 'Oldest article')}</span>
+                </div>
+                <div class="reading-nav-item next${newer ? '' : ' disabled'}" ${newer ? `data-nav="${newer.id}" role="button" tabindex="0"` : ''}>
+                    <span class="reading-nav-label"><span>${currentLang === 'zh' ? '下一篇' : 'Next'}</span><i class="ri-arrow-right-line"></i></span>
+                    <span class="reading-nav-title">${newer ? newer.title : (currentLang === 'zh' ? '已是最新一篇' : 'Latest article')}</span>
+                </div>`;
+
+            nav.querySelectorAll('[data-nav]').forEach(el => {
+                el.onclick = () => openReading(el.getAttribute('data-nav'));
+                el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } };
+            });
+        }
+
+        function openReading(articleId) {
+            const indexEl = document.getElementById('blog-index');
+            const readingEl = document.getElementById('blog-reading');
+            if (!indexEl || !readingEl) return;
+
+            if (!indexEl.classList.contains('hidden')) listScrollY = window.scrollY;
+            activeArticleId = articleId;
+            indexEl.classList.add('hidden');
+            readingEl.classList.remove('hidden');
+            animateSwap(readingEl);
+            document.querySelectorAll('.blog-card').forEach(el => el.classList.remove('active'));
+            const card = document.getElementById(`blc-${articleId}`);
+            if (card) card.classList.add('active');
+
+            renderReading(articleId);
+            window.scrollTo({ top: 0 });
+            const backBtn = document.getElementById('reading-back');
+            if (backBtn) backBtn.focus({ preventScroll: true });
+            fetchArticle(articleId);
+        }
+
+        function closeReading(restoreScroll) {
+            const indexEl = document.getElementById('blog-index');
+            const readingEl = document.getElementById('blog-reading');
+            if (!indexEl || !readingEl || readingEl.classList.contains('hidden')) return;
+            readingEl.classList.add('hidden');
+            indexEl.classList.remove('hidden');
+            animateSwap(indexEl);
+            updateReadingProgress();
+            if (restoreScroll) window.scrollTo({ top: listScrollY });
+        }
+
+        function fetchArticle(articleId) {
+            if (articleCache[articleId]) { renderReading(articleId); return; }
+            const article = blogData.find(b => b.id === articleId);
+            if (!article) return;
+
+            fetch(`posts/${articleId}.md`)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.text();
+                })
+                .then(mdText => {
+                    articleCache[articleId] = marked.parse(mdText);
+                    article._excerpt = makeExcerpt(mdText);
+                    article._minutes = estimateMinutes(mdText);
+                    if (activeArticleId === articleId) renderReading(articleId);
+                    initBlogIndex(); // 摘要与阅读时长回填列表卡片
+                })
+                .catch(() => {
+                    const errText = currentLang === 'zh'
+                        ? '文章正文内容加载失败，请检查 Markdown 文件是否存在。'
+                        : 'Failed to load post content. Please check if the Markdown file exists.';
+                    articleCache[articleId] = `<p style="color: #8E8E93;">${errText}</p>`;
+                    if (activeArticleId === articleId) renderReading(articleId);
+                });
+        }
+
+        // 阅读进度：文顶到达视口顶部附近后开始，文章底边到达视口底部时读完
+        function updateReadingProgress() {
+            const bar = document.getElementById('reading-progress-bar');
+            if (!bar) return;
+            const readingEl = document.getElementById('blog-reading');
+            const article = document.getElementById('reading-article');
+            if (!readingEl || readingEl.classList.contains('hidden') || !article) {
+                bar.style.width = '0%';
+                return;
+            }
+            const rect = article.getBoundingClientRect();
+            const denom = article.offsetHeight + 100 - window.innerHeight;
+            const p = denom > 0
+                ? (100 - rect.top) / denom
+                : (rect.top < 100 ? 1 : 0);
+            bar.style.width = `${(Math.min(1, Math.max(0, p)) * 100).toFixed(1)}%`;
+        }
+
+        // ==================== 关于我：网格化热力贡献图 ====================
+        // 确定性伪随机（固定种子），保证每次渲染数据一致
+        function mulberry32(seed) {
+            return function () {
+                seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+                let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        function buildHeatmap() {
+            const grid = document.getElementById('heat-grid');
+            const monthsEl = document.getElementById('heat-months');
+            const weekdaysEl = document.getElementById('heat-weekdays');
+            const statsEl = document.getElementById('heat-stats');
+            if (!grid || !monthsEl || !weekdaysEl || !statsEl) return;
+
+            const weeks = 26;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dow = (today.getDay() + 6) % 7; // 周一记为 0
+            const start = new Date(today);
+            start.setDate(today.getDate() - dow - (weeks - 1) * 7);
+
+            const monthNames = currentLang === 'zh'
+                ? ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dayNames = currentLang === 'zh' ? ['一', '三', '五'] : ['M', 'W', 'F'];
+            const CELL = 15; // 单元 12px + 间距 3px
+
+            weekdaysEl.innerHTML = Array.from({ length: 7 }, (_, i) => {
+                const idx = [0, 2, 4].indexOf(i);
+                return `<span>${idx >= 0 ? dayNames[idx] : ''}</span>`;
+            }).join('');
+
+            const rand = mulberry32(20261111);
+            let cells = '', monthsHTML = '', lastMonth = -1, total = 0;
+
+            for (let w = 0; w < weeks; w++) {
+                const first = new Date(start);
+                first.setDate(start.getDate() + w * 7);
+                if (first.getMonth() !== lastMonth) {
+                    lastMonth = first.getMonth();
+                    monthsHTML += `<span class="heat-month" style="left:${w * CELL}px">${monthNames[lastMonth]}</span>`;
+                }
+                for (let d = 0; d < 7; d++) {
+                    const date = new Date(start);
+                    date.setDate(start.getDate() + w * 7 + d);
+                    if (date > today) {
+                        cells += `<span class="heat-cell future"></span>`;
+                        continue;
+                    }
+                    const weekend = d >= 5;
+                    let count = Math.floor(Math.pow(rand(), 1.6) * (weekend ? 6 : 11));
+                    if (rand() < 0.15) count = 0;
+                    total += count;
+                    const level = count === 0 ? 0 : count <= 2 ? 1 : count <= 4 ? 2 : count <= 7 ? 3 : 4;
+                    const ds = currentLang === 'zh'
+                        ? `${date.getMonth() + 1}月${date.getDate()}日`
+                        : `${monthNames[date.getMonth()]} ${date.getDate()}`;
+                    cells += `<span class="heat-cell lv${level}" style="--col:${w}" data-count="${count}" data-date="${ds}"></span>`;
+                }
+            }
+
+            grid.innerHTML = cells;
+            monthsEl.innerHTML = monthsHTML;
+            statsEl.innerHTML = currentLang === 'zh'
+                ? `过去 26 周 · <b>${total}</b> 次构建与创作`
+                : `Last 26 weeks · <b>${total}</b> builds & creations`;
+        }
+
+        function initHeatmapTooltip() {
+            const tip = document.getElementById('heat-tip');
+            const grid = document.getElementById('heat-grid');
+            if (!tip || !grid) return;
+
+            grid.addEventListener('pointerover', (e) => {
+                const cell = e.target.closest('.heat-cell');
+                if (!cell || cell.classList.contains('future') || !cell.dataset.count) {
+                    tip.classList.remove('show');
+                    return;
+                }
+                const r = cell.getBoundingClientRect();
+                tip.textContent = currentLang === 'zh'
+                    ? `${cell.dataset.date} · ${cell.dataset.count} 次活动`
+                    : `${cell.dataset.date} · ${cell.dataset.count} activities`;
+                tip.style.left = `${r.left + r.width / 2}px`;
+                tip.style.top = `${r.top - 8}px`;
+                tip.classList.add('show');
+            });
+            grid.addEventListener('pointerleave', () => tip.classList.remove('show'));
+            document.addEventListener('pointerdown', (e) => {
+                if (!e.target.closest('.heat-cell')) tip.classList.remove('show');
+            });
+            window.addEventListener('scroll', () => tip.classList.remove('show'), { passive: true });
+        }
+
+        // 页面视图切换逻辑
+        function toggleView(target) {
+            const profileView = document.getElementById('view-profile');
+            const projectsView = document.getElementById('view-projects');
+            const blogView = document.getElementById('view-blog');
+            const aboutView = document.getElementById('view-about');
+            const topNavbar = document.getElementById('top-navbar');
+            const globalFooter = document.getElementById('global-footer');
+
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            profileView.classList.add('hidden');
+            projectsView.classList.add('hidden');
+            blogView.classList.add('hidden');
+            if (aboutView) { aboutView.classList.add('hidden'); aboutView.classList.remove('about-animate'); }
+            closeDrawer();
+
+            if (target === 'projects') {
+                projectsView.classList.remove('hidden');
+                topNavbar.classList.add('nav-visible');
+                globalFooter.classList.remove('hidden');
+                document.body.classList.add('has-navbar');
+                document.getElementById('nav-link-projects').classList.add('active');
+
+                initProjects();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } else if (target === 'blog') {
+                blogView.classList.remove('hidden');
+                topNavbar.classList.add('nav-visible');
+                globalFooter.classList.remove('hidden');
+                document.body.classList.add('has-navbar');
+                document.getElementById('nav-link-blog').classList.add('active');
+
+                closeReading(false);
+                fetch('posts.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        blogData = data;
+                        initBlogIndex();
+                        // 若阅读态已先行打开（如快速进入），列表就绪后补渲染正文
+                        const readingEl = document.getElementById('blog-reading');
+                        if (activeArticleId && readingEl && !readingEl.classList.contains('hidden')) {
+                            renderReading(activeArticleId);
+                            fetchArticle(activeArticleId);
+                        }
+                    })
+                    .catch(err => {
+                        const list = document.getElementById('blog-list');
+                        if (list) list.innerHTML = `<div class="blog-empty">${currentLang === 'zh' ? '未能成功获取文章列表，请检查 posts.json 文件配置。' : 'Failed to fetch post list. Please check posts.json configuration.'}</div>`;
+                        const countEl = document.getElementById('blog-count');
+                        if (countEl) countEl.innerText = currentLang === 'zh' ? '加载失败' : 'Failed to load';
+                    });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } else if (target === 'about') {
+                if (aboutView) aboutView.classList.remove('hidden');
+                topNavbar.classList.add('nav-visible');
+                globalFooter.classList.remove('hidden');
+                document.body.classList.add('has-navbar');
+                document.getElementById('nav-link-about').classList.add('active');
+
+                // 重新触发雷达图与热力图的入场动画
+                aboutView.classList.remove('about-animate');
+                void aboutView.offsetWidth;
+                aboutView.classList.add('about-animate');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } else {
+                profileView.classList.remove('hidden');
+                topNavbar.classList.remove('nav-visible');
+                globalFooter.classList.add('hidden');
+                document.body.classList.remove('has-navbar');
+            }
+
+            updateDocumentTitle();
+        }
+
+        // 页面初始化加载语言设置与可视化组件
+        window.addEventListener('DOMContentLoaded', () => {
+            applyLanguage();
+            initHeatmapTooltip();
+
+            // Esc：先关抽屉，再从阅读页返回列表
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+                if (drawerState.type) { closeDrawer(); return; }
+                const readingEl = document.getElementById('blog-reading');
+                if (readingEl && !readingEl.classList.contains('hidden')) closeReading(true);
+            });
+            // 阅读进度条随页面滚动更新
+            window.addEventListener('scroll', updateReadingProgress, { passive: true });
+        });
+    </script>
+</body>
+</html>
