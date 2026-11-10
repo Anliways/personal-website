@@ -729,7 +729,7 @@ $('stf-reset').onclick = () => {
 $('stf-save').onclick = async () => {
   const status = $('stf-status');
   // 暂存的新头像路径提前确定：配置与图片文件引用同一路径，单次提交保持一致
-  const newAvatarPath = pendingAvatar ? 'assets/avatar-' + Date.now() + '.' + pendingAvatar.ext : null;
+  const newAvatarPath = pendingAvatar ? 'assets/avatar/' + Date.now() + '.' + pendingAvatar.ext : null;
   // 组装配置：空值一律不写入，交由前端兜底逻辑取默认
   const cfg = {};
   const title = $('stf-title').value.trim();
