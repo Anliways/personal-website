@@ -1,10 +1,10 @@
 {
   "homeBackground": {
-    "image": "assets/bg.jpg",
+    "image": "assets/bg.webp",
     "overlay": 0.45,
     "blur": 0
   },
   "profile": {
-    "avatar": "assets/avatar-1794342465305.jpg"
+    "avatar": "assets/avatar-1794342465305.webp"
   }
 }

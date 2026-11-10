@@ -663,21 +663,55 @@ $('ab-add-tag').onclick = () => $('ab-tags').appendChild(aboutTagCard());
 $('ab-avatar').oninput = () => syncAvatarPreview($('ab-avatar').value.trim());
 
 // 选择本地图片：仅暂存（base64 + 扩展名），点「保存并发布」时与配置合并为一次原子提交
+// 除 GIF（保留动画）外统一在前端压缩：最长边缩到 512px 并转 WebP，避免大图直传拖慢主站
 let pendingAvatar = null; // { base64, ext, name }
 $('ab-avatar-file').onchange = () => {
   const file = $('ab-avatar-file').files[0];
   const st = $('ab-upload-status');
   st.textContent = '';
   if (!file) { pendingAvatar = null; return; }
-  if (file.size > 2 * 1024 * 1024) { pendingAvatar = null; $('ab-avatar-file').value = ''; return st.textContent = '图片超过 2MB，请压缩后再上传'; }
-  const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[file.type];
-  if (!ext) { pendingAvatar = null; return st.textContent = '仅支持 JPG / PNG / WebP / GIF'; }
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
+  if (file.size > 20 * 1024 * 1024) { pendingAvatar = null; $('ab-avatar-file').value = ''; return st.textContent = '图片超过 20MB，请压缩后再上传'; }
+  const rawExt = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[file.type];
+  if (!rawExt) { pendingAvatar = null; return st.textContent = '仅支持 JPG / PNG / WebP / GIF'; }
+
+  const stage = (dataUrl, ext, note) => {
     pendingAvatar = { base64: dataUrl.slice(dataUrl.indexOf(',') + 1), ext, name: file.name };
     syncAvatarPreview(dataUrl); // 暂存预览用 dataURL，无需等待上传
-    st.textContent = '已选择 ' + file.name + '（' + (file.size < 1024 ? file.size + 'B' : Math.round(file.size / 1024) + 'KB') + '），点「保存并发布」时一并上传';
+    st.textContent = note;
+  };
+
+  // GIF 直接原样暂存（canvas 重绘会丢动画）
+  if (rawExt === 'gif') {
+    const reader = new FileReader();
+    reader.onload = () => stage(reader.result, 'gif', '已选择 ' + file.name + '（GIF 原样上传），点「保存并发布」时一并上传');
+    reader.onerror = () => st.textContent = '读取文件失败';
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  // 其余格式：缩放 + WebP 压缩
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const MAX = 512;
+        const scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        let dataUrl = canvas.toDataURL('image/webp', 0.85);
+        let ext = 'webp';
+        if (!dataUrl.startsWith('data:image/webp')) { dataUrl = canvas.toDataURL('image/jpeg', 0.85); ext = 'jpg'; } // 极老浏览器兜底
+        const kb = Math.round(dataUrl.length * 0.75 / 1024);
+        stage(dataUrl, ext, '已压缩 ' + img.naturalWidth + '×' + img.naturalHeight + ' → ' + canvas.width + '×' + canvas.height + '（约 ' + kb + 'KB），点「保存并发布」时一并上传');
+      } catch (e) {
+        st.textContent = '图片压缩失败，请换一张试试';
+      }
+    };
+    img.onerror = () => st.textContent = '图片读取失败，文件可能已损坏';
+    img.src = reader.result;
   };
   reader.onerror = () => st.textContent = '读取文件失败';
   reader.readAsDataURL(file);
