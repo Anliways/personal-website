@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Anliways | 个人主页</title>
     <meta name="description" content="Anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
     <link rel="canonical" href="https://www.anliways.com/">
@@ -979,6 +979,35 @@
         }
 
         @media (max-width: 640px) { .nav-container { padding: 0 24px; } .nav-links { gap: 16px; } .brand-name { display: none; } }
+
+        /* ==================== 移动端底部标签栏（iOS 风格，≤640px 接管导航） ==================== */
+        .bottom-tabbar { display: none; }
+        @media (max-width: 640px) {
+            /* 顶栏只保留品牌与语言按钮，四个视图由底部标签栏接管 */
+            .top-navbar .nav-links { display: none; }
+            .bottom-tabbar {
+                display: flex;
+                position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+                height: calc(58px + env(safe-area-inset-bottom));
+                padding: 6px 8px env(safe-area-inset-bottom);
+                background: rgba(30, 30, 30, 0.88);
+                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                justify-content: space-around; align-items: stretch;
+            }
+            .tab-item {
+                flex: 1;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                gap: 3px;
+                color: #8E8E93; font-size: 10px; font-weight: 500;
+                cursor: pointer; -webkit-tap-highlight-color: transparent;
+                transition: color 0.2s ease;
+            }
+            .tab-item i { font-size: 20px; line-height: 1; }
+            .tab-item.active { color: #0a84ff; }
+            /* 给固定标签栏让出底部空间（含 iPhone 底部安全区） */
+            body { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+        }
         @media (max-width: 500px) {
             .socials-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -1017,6 +1046,26 @@
                 </button>
             </div>
         </div>
+    </nav>
+
+    <!-- 移动端底部标签栏（≤640px 显示）：iOS 风格四视图直达，层级与顶栏一致，抽屉（1500+）可覆盖 -->
+    <nav id="bottom-tabbar" class="bottom-tabbar">
+        <a id="tab-profile" class="tab-item" onclick="toggleView('profile')">
+            <i class="ri-home-5-line"></i>
+            <span data-zh="主页" data-en="Home">主页</span>
+        </a>
+        <a id="tab-projects" class="tab-item" onclick="toggleView('projects')">
+            <i class="ri-layout-grid-line"></i>
+            <span data-zh="项目" data-en="Projects">项目</span>
+        </a>
+        <a id="tab-blog" class="tab-item" onclick="toggleView('blog')">
+            <i class="ri-article-line"></i>
+            <span data-zh="博客" data-en="Blog">博客</span>
+        </a>
+        <a id="tab-about" class="tab-item" onclick="toggleView('about')">
+            <i class="ri-user-smile-line"></i>
+            <span data-zh="关于" data-en="About">关于</span>
+        </a>
     </nav>
 
     <!-- 视图 1：起始页 -->
@@ -1965,6 +2014,11 @@
                 globalFooter.classList.add('hidden');
                 document.body.classList.remove('has-navbar');
             }
+
+            // 移动端底部标签栏高亮同步（≤640px 由 CSS 显示）
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            const activeTab = document.getElementById('tab-' + target);
+            if (activeTab) activeTab.classList.add('active');
 
             updateDocumentTitle();
 
