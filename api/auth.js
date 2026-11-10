@@ -11,7 +11,7 @@ const {
   rateLimited, recordFail, resetAttempts
 } = require('./_shared.js');
 
-const USERNAME_RE = /^[a-zA-Z0-9_-]{3,20}$/;
+const USERNAME_RE = /^[a-zA-Z0-9_-]{1,20}$/;
 
 module.exports = async function handler(req, res) {
   try {
@@ -83,8 +83,8 @@ module.exports = async function handler(req, res) {
 }
 
 function validate(username, password) {
-  if (!USERNAME_RE.test(username)) return '用户名需为 3-20 位英文、数字、下划线或连字符';
-  if (password.length < 8) return '密码至少 8 位';
+  if (!USERNAME_RE.test(username)) return '用户名需为 1-20 位英文、数字、下划线或连字符';
+  if (password.length < 1) return '密码至少 1 位';
   if (password.length > 128) return '密码过长';
   return null;
 }
