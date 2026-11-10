@@ -1,20 +1,10 @@
 {
-  "siteTitle": "",
   "homeBackground": {
     "image": "assets/bg.jpg",
-    "gradient": "",
     "overlay": 0.45,
     "blur": 0
   },
-  "socialLinks": [],
   "profile": {
-    "avatar": "",
-    "titleZh": "",
-    "titleEn": "",
-    "subtitleZh": "",
-    "subtitleEn": "",
-    "descZh": "",
-    "descEn": "",
-    "tags": []
+    "avatar": "assets/avatar-1794342465305.jpg"
   }
 }
