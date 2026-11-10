@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>anliways 的博客</title>
+    <link>https://www.anliways.com</link>
+    <description>anliways 的个人博客：技术见解、行业观察与深度思考随笔。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 10 Nov 2026 20:04:30 GMT</lastBuildDate>
+    <atom:link href="https://www.anliways.com/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>把工作流压到最简：我的效率系统重构笔记</title>
+      <link>https://www.anliways.com/#/blog/hello-minimal-workflow</link>
+      <guid isPermaLink="false">anliways-post-hello-minimal-workflow</guid>
+      <pubDate>Wed, 28 Oct 2026 00:00:00 GMT</pubDate>
+      <description>效率系统的第一步不是「加工具」，而是「减环节」。过去一年我把自己的数字工作流重构了三轮，最终的结论非常朴素：能被自动化的绝不手动，能被合并的绝不拆分。</description>
+    </item>
+    <item>
+      <title>个人项目的微服务边界：什么时候该拆，什么时候不该</title>
+      <link>https://www.anliways.com/#/blog/microservice-notes</link>
+      <guid isPermaLink="false">anliways-post-microservice-notes</guid>
+      <pubDate>Tue, 15 Sep 2026 00:00:00 GMT</pubDate>
+      <description>微服务不是大型公司的专利，但个人项目更容易犯「过度拆分」的错误。分享几条我踩坑之后的判断标准：看部署节奏、看扩容需求、看数据模型。</description>
+    </item>
+    <item>
+      <title>暗色 UI 的克制美学：从材质到层次的五个原则</title>
+      <link>https://www.anliways.com/#/blog/dark-ui-principles</link>
+      <guid isPermaLink="false">anliways-post-dark-ui-principles</guid>
+      <pubDate>Sun, 02 Aug 2026 00:00:00 GMT</pubDate>
+      <description>暗色主题最容易做「脏」，也最容易做「刺眼」。以下是我在设计系统中沉淀的五个原则：别用纯黑、文字别用纯白、层次靠亮度不靠阴影。</description>
+    </item>
+  </channel>
+</rss>

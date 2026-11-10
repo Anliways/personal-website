@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>anliways | 个人主页</title>
+    <meta name="description" content="anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
+    <link rel="canonical" href="https://www.anliways.com/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate" type="application/rss+xml" title="anliways 的博客" href="/rss.xml">
+    <meta name="theme-color" content="#121212">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="anliways">
+    <meta property="og:title" content="anliways | 个人主页">
+    <meta property="og:description" content="anliways 的个人网站：项目橱窗、技术博客与独立工具（布谷鸟写作、编码叶编辑器）。">
+    <meta property="og:url" content="https://www.anliways.com/">
+    <meta property="og:image" content="https://www.anliways.com/assets/og-image.jpg">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
     
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <!-- 核心引入：Markdown 实时转换器 -->
@@ -1684,6 +1697,9 @@
             window.scrollTo({ top: 0 });
             const backBtn = document.getElementById('reading-back');
             if (backBtn) backBtn.focus({ preventScroll: true });
+            // 同步地址栏，支持刷新/分享直达本文（hashchange 由 activeArticleId 判重防循环）
+            const wantHash = '#/blog/' + articleId;
+            if (location.hash !== wantHash) location.hash = wantHash;
             fetchArticle(articleId);
         }
 
@@ -1696,6 +1712,7 @@
             animateSwap(indexEl);
             updateReadingProgress();
             if (restoreScroll) window.scrollTo({ top: listScrollY });
+            if (location.hash.startsWith('#/blog/')) location.hash = '#/blog';
         }
 
         function fetchArticle(articleId) {
@@ -1932,6 +1949,11 @@
             if (h === '#/about') return 'about';
             return null;
         }
+        // 文章深链：#/blog/<id> → 直接打开沉浸阅读
+        function parseHashArticle() {
+            const m = location.hash.match(/^#\/blog\/([\w-]+)/);
+            return m ? m[1] : null;
+        }
         // 旧站子应用深链兼容：#/admin、#/cuckoo、#/codeleaf → 对应独立应用
         function redirectSubApp() {
             const map = { '#/admin': '/admin', '#/cuckoo': '/cuckoo/', '#/codeleaf': '/codeleaf/' };
@@ -1940,7 +1962,19 @@
         }
         window.addEventListener('hashchange', () => {
             if (redirectSubApp()) return;
+            const articleId = parseHashArticle();
+            if (articleId) {
+                if (currentView !== 'blog') toggleView('blog');
+                if (activeArticleId !== articleId) openReading(articleId);
+                return;
+            }
             const view = parseHashView();
+            if (view === 'blog') {
+                // 回到列表（含浏览器后退）：从阅读态返回文章列表
+                const readingEl = document.getElementById('blog-reading');
+                if (readingEl && !readingEl.classList.contains('hidden')) closeReading(true);
+                return;
+            }
             if (view && view !== currentView) toggleView(view);
             if (!view && currentView !== 'profile') toggleView('profile');
         });
@@ -1960,8 +1994,14 @@
             // 阅读进度条随页面滚动更新
             window.addEventListener('scroll', updateReadingProgress, { passive: true });
 
-            // 初始路由：带 hash 访问（如 /#/projects）时直达对应视图
+            // 初始路由：带 hash 访问（如 /#/projects、#/blog/<id>）时直达对应视图
             if (redirectSubApp()) return;
+            const initialArticle = parseHashArticle();
+            if (initialArticle) {
+                toggleView('blog');
+                openReading(initialArticle);
+                return;
+            }
             const initialView = parseHashView();
             if (initialView && initialView !== currentView) toggleView(initialView);
         });

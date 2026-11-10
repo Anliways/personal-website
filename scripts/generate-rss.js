@@ -21,9 +21,15 @@ function escapeXml(s) {
         .replace(/'/g, '&apos;');
 }
 
-// 解析 posts.json 中的中文日期（如 "2026年7月10日"），无法解析时回退为当前时间
-function parseZhDate(str) {
-    const m = String(str || '').match(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日/);
+// 解析日期：支持 ISO（"2026-10-28"）与中文（"2026年7月10日"），无法解析时回退为当前时间
+function parseDate(str) {
+    const s = String(str || '').trim();
+    const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (iso) {
+        const d = new Date(Date.UTC(+iso[1], +iso[2] - 1, +iso[3]));
+        if (!isNaN(d.getTime())) return d;
+    }
+    const m = s.match(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日/);
     if (m) {
         const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
         if (!isNaN(d.getTime())) return d;
@@ -39,11 +45,9 @@ const postsPath = path.join(root, 'posts.json');
 const posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
 
 const items = posts.map(p => {
-    const link = p.fullUrl && p.fullUrl !== 'https://telegra.ph'
-        ? p.fullUrl
-        : `${SITE_URL}/#/blog/${encodeURIComponent(p.id)}`;
-    const pubDate = toRfc822(parseZhDate(p.date));
-    const desc = p.summary || '';
+    const link = p.fullUrl || `${SITE_URL}/#/blog/${encodeURIComponent(p.id)}`;
+    const pubDate = toRfc822(parseDate(p.date));
+    const desc = p.excerpt || p.summary || '';
     return `    <item>
       <title>${escapeXml(p.title || p.id)}</title>
       <link>${escapeXml(link)}</link>
