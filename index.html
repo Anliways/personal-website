@@ -1932,7 +1932,14 @@
             if (h === '#/about') return 'about';
             return null;
         }
+        // 旧站子应用深链兼容：#/admin、#/cuckoo、#/codeleaf → 对应独立应用
+        function redirectSubApp() {
+            const map = { '#/admin': '/admin', '#/cuckoo': '/cuckoo/', '#/codeleaf': '/codeleaf/' };
+            if (map[location.hash]) { location.replace(map[location.hash]); return true; }
+            return false;
+        }
         window.addEventListener('hashchange', () => {
+            if (redirectSubApp()) return;
             const view = parseHashView();
             if (view && view !== currentView) toggleView(view);
             if (!view && currentView !== 'profile') toggleView('profile');
@@ -1954,6 +1961,7 @@
             window.addEventListener('scroll', updateReadingProgress, { passive: true });
 
             // 初始路由：带 hash 访问（如 /#/projects）时直达对应视图
+            if (redirectSubApp()) return;
             const initialView = parseHashView();
             if (initialView && initialView !== currentView) toggleView(initialView);
         });

@@ -1,0 +1,288 @@
+[
+ {
+  "id": "media-blog",
+  "title_zh": "媒体博客",
+  "title_en": "Media Blog",
+  "icon": "ri-article-line",
+  "desc_zh": "基于 Telegraph 架构打造的轻量级媒体博客，用于分享技术见解、行业观察以及深度思考随笔。",
+  "desc_en": "A lightweight media blog built on Telegraph architecture for sharing technical insights, industry observations, and essay reflections.",
+  "subItems": [
+   {
+    "title_zh": "技术周刊",
+    "title_en": "Tech Weekly",
+    "desc_zh": "前沿技术与开发动态",
+    "desc_en": "Frontier tech & dev news",
+    "icon": "ri-newspaper-line",
+    "link": "https://telegra.ph"
+   },
+   {
+    "title_zh": "思考随笔",
+    "title_en": "Essays & Thoughts",
+    "desc_zh": "个人感悟与行业观察",
+    "desc_en": "Reflections & observations",
+    "icon": "ri-draft-line",
+    "link": "https://telegra.ph"
+   },
+   {
+    "title_zh": "RSS 订阅",
+    "title_en": "RSS Feed",
+    "desc_zh": "实时订阅最新发布",
+    "desc_en": "Subscribe to updates",
+    "icon": "ri-rss-line",
+    "link": "https://www.anliways.com/rss.xml"
+   }
+  ]
+ },
+ {
+  "id": "codeleaf",
+  "title_zh": "编码叶 CodeLeaf",
+  "title_en": "CodeLeaf",
+  "icon": "ri-quill-pen-line",
+  "desc_zh": "实时文本编辑与预览工具：左侧编辑区支持加粗、颜色、字号、对齐、表格、代码块与图片，右侧同步渲染排版效果，可导出 PNG 长图 / Markdown / TXT。",
+  "desc_en": "A real-time editor with live preview: rich text styling, tables, code blocks and images on the left, rendered layout on the right. Export as PNG / Markdown / TXT.",
+  "subItems": [
+   {
+    "title_zh": "开始使用",
+    "title_en": "Launch App",
+    "desc_zh": "打开编辑器（PC 双栏体验最佳）",
+    "desc_en": "Open the editor (best on desktop)",
+    "icon": "ri-play-circle-line",
+    "link": "https://www.anliways.com/codeleaf/"
+   },
+   {
+    "title_zh": "源码仓库",
+    "title_en": "Source Code",
+    "desc_zh": "React + Vite + Tailwind 开源实现",
+    "desc_en": "React + Vite + Tailwind source",
+    "icon": "ri-github-line",
+    "link": "https://github.com/Anliways/codeleaf"
+   },
+   {
+    "title_zh": "Pages 镜像",
+    "title_en": "Pages Mirror",
+    "desc_zh": "GitHub Pages 备用入口",
+    "desc_en": "GitHub Pages fallback entry",
+    "icon": "ri-global-line",
+    "link": "https://anliways.github.io/codeleaf/"
+   }
+  ]
+ },
+ {
+  "id": "cuckoo",
+  "title_zh": "布谷鸟工作台",
+  "title_en": "Cuckoo Workspace",
+  "icon": "ri-todo-line",
+  "desc_zh": "个人效率工作台：提醒、每日任务、看板、日历与邮件集成一屏，支持 AI 文本与图像生成（需自行配置 API）。数据仅保存在本机浏览器，可一键导出备份。",
+  "desc_en": "A personal productivity workspace combining reminders, daily tasks, kanban, calendar and mail in one screen, with AI text/image generation (bring your own API). Data stays in your browser.",
+  "subItems": [
+   {
+    "title_zh": "开始使用",
+    "title_en": "Launch App",
+    "desc_zh": "打开工作台（数据存于本机浏览器）",
+    "desc_en": "Open the workspace (data stays local)",
+    "icon": "ri-play-circle-line",
+    "link": "https://www.anliways.com/cuckoo/"
+   }
+  ]
+ },
+ {
+  "id": "open-source",
+  "title_zh": "开源主页",
+  "title_en": "Open Source",
+  "icon": "ri-github-fill",
+  "desc_zh": "个人 GitHub 开源项目集合，包含各种前端 UI 组件、实用自动化工具以及效率脚本代码。",
+  "desc_en": "Collection of open-source projects on GitHub, including UI components, automation scripts, and workflow utilities.",
+  "subItems": [
+   {
+    "title_zh": "主仓库入口",
+    "title_en": "Main Repository",
+    "desc_zh": "查看所有开源代码仓库",
+    "desc_en": "View all source code repos",
+    "icon": "ri-github-line",
+    "link": "https://github.com"
+   },
+   {
+    "title_zh": "UI Toolkit",
+    "title_en": "UI Toolkit",
+    "desc_zh": "极简响应式设计组件",
+    "desc_en": "Minimalist responsive components",
+    "icon": "ri-palette-line",
+    "link": "https://github.com"
+   },
+   {
+    "title_zh": "CLI 工具集",
+    "title_en": "CLI Suite",
+    "desc_zh": "命令行自动化增强包",
+    "desc_en": "Command-line automation suite",
+    "icon": "ri-terminal-line",
+    "link": "https://github.com"
+   }
+  ]
+ },
+ {
+  "id": "scripts",
+  "title_zh": "效率脚本",
+  "title_en": "Utility Scripts",
+  "icon": "ri-terminal-box-line",
+  "desc_zh": "用于提升日常工作与开发效率的命令行工具及自动化脚本，覆盖工作流优化与批量处理。",
+  "desc_en": "Command-line scripts to boost productivity, automating daily workflows and batch processing.",
+  "subItems": [
+   {
+    "title_zh": "文本清洗器",
+    "title_en": "Text Cleaner",
+    "desc_zh": "自动正则匹配与格式调整",
+    "desc_en": "Automated regex & formatting",
+    "icon": "ri-file-text-line",
+    "link": "#"
+   },
+   {
+    "title_zh": "媒体压缩器",
+    "title_en": "Media Compressor",
+    "desc_zh": "无损图片与视频批量转换",
+    "desc_en": "Batch image & video optimization",
+    "icon": "ri-file-zip-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "design-res",
+  "title_zh": "设计资源",
+  "title_en": "Design Assets",
+  "icon": "ri-image-edit-line",
+  "desc_zh": "精选的高质量 UI 设计规范、矢量图标库以及界面素材，为开发与设计提供视觉灵感与资源支撑。",
+  "desc_en": "Curated high-quality UI design guidelines, vector icon sets, and layout kits.",
+  "subItems": [
+   {
+    "title_zh": "Icon Set",
+    "title_en": "Icon Set",
+    "desc_zh": "定制化图标设计集",
+    "desc_en": "Custom iconography set",
+    "icon": "ri-remixicon-line",
+    "link": "#"
+   },
+   {
+    "title_zh": "Figma UI Kit",
+    "title_en": "Figma UI Kit",
+    "desc_zh": "Apple 风格组件库源文件",
+    "desc_en": "Apple-style design assets",
+    "icon": "ri-layout-4-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "private-drive",
+  "title_zh": "私有网盘",
+  "title_en": "Cloud Drive",
+  "icon": "ri-cloud-line",
+  "desc_zh": "极速安全的云端文件存储与传输服务，支持多端数据同步、在线预览与私有化存储。",
+  "desc_en": "Secure cloud storage and transfer service with multi-device sync and online preview.",
+  "subItems": [
+   {
+    "title_zh": "公共分享区",
+    "title_en": "Public Transfer",
+    "desc_zh": "公开文件快传通道",
+    "desc_en": "Fast file sharing hub",
+    "icon": "ri-share-forward-line",
+    "link": "#"
+   },
+   {
+    "title_zh": "加密暂存",
+    "title_en": "Encrypted Storage",
+    "desc_zh": "高强度临时加密存储",
+    "desc_en": "Temporary encrypted vault",
+    "icon": "ri-lock-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "api-services",
+  "title_zh": "API 服务",
+  "title_en": "API Services",
+  "icon": "ri-code-s-slash-line",
+  "desc_zh": "高效稳定的后端微服务 API 接口，提供数据转换、轻量解析以及智能化处理能力。",
+  "desc_en": "Stable backend microservices providing data parsing, transformation, and lightweight logic.",
+  "subItems": [
+   {
+    "title_zh": "数据解析器",
+    "title_en": "Data Parser",
+    "desc_zh": "多格式转换支持",
+    "desc_en": "Multi-format translation",
+    "icon": "ri-braces-line",
+    "link": "#"
+   },
+   {
+    "title_zh": "服务状态",
+    "title_en": "Status Portal",
+    "desc_zh": "API 节点响应实时监控",
+    "desc_en": "Real-time uptime monitoring",
+    "icon": "ri-pulse-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "data-monitor",
+  "title_zh": "数据监控",
+  "title_en": "Data Monitor",
+  "icon": "ri-database-2-line",
+  "desc_zh": "实时服务端与应用状态监控系统，提供可视化数据统计看板、请求分析及异常指标告警。",
+  "desc_en": "Real-time application and server monitoring with dashboard analytics and alerts.",
+  "subItems": [
+   {
+    "title_zh": "Uptime 监控",
+    "title_en": "Uptime Dashboard",
+    "desc_zh": "节点可用率实时看板",
+    "desc_en": "Live node availability",
+    "icon": "ri-line-chart-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "bot-deploy",
+  "title_zh": "Bot 部署",
+  "title_en": "Bot Deploy",
+  "icon": "ri-robot-2-line",
+  "desc_zh": "个人自动化机器人服务，集成多平台 API 支持智能消息推送、AI 对话交互及定时任务执行。",
+  "desc_en": "Automated bots integrated across platforms for notifications, AI tasks, and scheduled workflows.",
+  "subItems": [
+   {
+    "title_zh": "TG 提醒助手",
+    "title_en": "TG Assistant",
+    "desc_zh": "消息与日程自动化提醒",
+    "desc_en": "Automated schedule alerts",
+    "icon": "ri-telegram-line",
+    "link": "#"
+   }
+  ]
+ },
+ {
+  "id": "photo-gallery",
+  "title_zh": "摄影集",
+  "title_en": "Photo Gallery",
+  "icon": "ri-camera-lens-line",
+  "desc_zh": "捕捉生活中的精彩瞬间与风景影像，高清摄影作品展示与记录。",
+  "desc_en": "Capturing moments and landscapes in high-definition photography.",
+  "subItems": [
+   {
+    "title_zh": "城市剪影",
+    "title_en": "Cityscape",
+    "desc_zh": "建筑与街道影像记录",
+    "desc_en": "Architectural & urban photography",
+    "icon": "ri-building-4-line",
+    "link": "#"
+   },
+   {
+    "title_zh": "自然风光",
+    "title_en": "Nature",
+    "desc_zh": "山川湖海摄影作品",
+    "desc_en": "Landscape photography",
+    "icon": "ri-landscape-line",
+    "link": "#"
+   }
+  ]
+ }
+]

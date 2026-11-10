@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>管理后台 · anliways</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#121212; color:rgba(255,255,255,.87); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; min-height:100vh; }
+a { color:#7ab8ff; }
+button { font-family:inherit; cursor:pointer; }
+.btn { background:#2c2c2e; color:#fff; border:1px solid #3a3a3c; border-radius:8px; padding:8px 16px; font-size:13px; }
+.btn:hover { background:#3a3a3c; }
+.btn-primary { background:#0a84ff; border-color:#0a84ff; }
+.btn-primary:hover { background:#2f95ff; }
+.btn-danger { background:transparent; border-color:#ff453a; color:#ff453a; }
+.btn-danger:hover { background:rgba(255,69,58,.12); }
+.btn-sm { padding:4px 10px; font-size:12px; }
+input, textarea, select { background:#1c1c1e; border:1px solid #3a3a3c; color:#fff; border-radius:8px; padding:9px 12px; font-size:14px; width:100%; font-family:inherit; }
+textarea.code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; line-height:1.6; min-height:320px; resize:vertical; white-space:pre; }
+input:focus, textarea:focus { outline:none; border-color:#0a84ff; }
+label { display:block; font-size:12px; color:rgba(255,255,255,.5); margin:12px 0 5px; }
+
+/* 登录 */
+#login-view { max-width:400px; margin:12vh auto; padding:32px; background:#1c1c1e; border-radius:16px; }
+#login-view h1 { font-size:20px; margin-bottom:6px; }
+#login-view p.hint { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:18px; }
+.login-error { color:#ff453a; font-size:13px; margin-top:10px; min-height:18px; }
+.mode-switch { font-size:13px; color:#7ab8ff; background:none; border:none; padding:0; text-decoration:underline; }
+.check-row { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+.check-row label { margin:0; display:flex; align-items:center; gap:6px; font-size:13px; color:rgba(255,255,255,.6); }
+.check-row input { width:auto; }
+
+/* 主界面 */
+#app-view { max-width:1080px; margin:0 auto; padding:24px 20px 60px; }
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.topbar h1 { font-size:18px; }
+.topbar .who { font-size:12px; color:rgba(255,255,255,.45); margin-left:10px; }
+.tabs { display:flex; gap:8px; margin-bottom:20px; border-bottom:1px solid #2c2c2e; padding-bottom:12px; }
+.tab { background:none; border:none; color:rgba(255,255,255,.5); font-size:14px; padding:6px 14px; border-radius:8px; }
+.tab.active { background:#2c2c2e; color:#fff; }
+.list-item { display:flex; justify-content:space-between; align-items:center; background:#1c1c1e; border:1px solid #2c2c2e; border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+.list-item .t { font-size:14px; font-weight:600; }
+.list-item .s { font-size:12px; color:rgba(255,255,255,.45); margin-top:3px; }
+.list-item .ops { display:flex; gap:6px; flex-shrink:0; margin-left:12px; }
+.panel { background:#1c1c1e; border:1px solid #2c2c2e; border-radius:16px; padding:22px; margin-bottom:16px; }
+.panel h2 { font-size:16px; margin-bottom:4px; }
+.panel .sub { font-size:12px; color:rgba(255,255,255,.45); margin-bottom:8px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+.subitem-card { background:#121212; border:1px solid #2c2c2e; border-radius:10px; padding:14px; margin-top:10px; position:relative; }
+.subitem-card .del { position:absolute; top:10px; right:10px; }
+.form-ops { display:flex; gap:10px; margin-top:18px; }
+.hidden { display:none !important; }
+#toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2c2c2e; border:1px solid #3a3a3c; padding:10px 20px; border-radius:10px; font-size:13px; display:none; max-width:80vw; }
+#toast.err { border-color:#ff453a; color:#ff453a; }
+.status-line { font-size:12px; color:rgba(255,255,255,.45); margin:8px 0; min-height:16px; }
+/* 设置页折叠分组卡片 */
+.sec-card { background:#1c1c1e; border:1px solid #2c2c2e; border-radius:14px; margin-bottom:12px; overflow:hidden; }
+.sec-head { display:flex; align-items:center; gap:10px; padding:14px 18px; cursor:pointer; user-select:none; }
+.sec-head:hover { background:#222226; }
+.sec-title { font-size:14px; font-weight:600; }
+.sec-hint { font-size:12px; color:rgba(255,255,255,.4); flex:1; }
+.sec-caret { color:rgba(255,255,255,.4); font-size:12px; }
+.sec-body { padding:2px 18px 18px; border-top:1px solid #2c2c2e; }
+.sec-card.collapsed .sec-body { display:none; }
+/* 吸底保存栏：滚动时始终可见 */
+.save-bar { position:sticky; bottom:12px; display:flex; align-items:center; gap:10px; background:#1c1c1e; border:1px solid #3a3a3c; border-radius:12px; padding:10px 14px; z-index:5; }
+.save-bar #stf-save.unsaved { box-shadow:0 0 0 2px rgba(255,214,10,.55); }
+.dirty-badge { color:#ffd60a; font-size:12px; white-space:nowrap; }
+@media (max-width:640px){ .row2 { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- 登录 / 注册视图 -->
+<div id="login-view">
+  <h1 id="lv-title">🔐 anliways 管理后台</h1>
+  <p class="hint" id="lv-hint">请使用管理员账户登录。会话通过安全 Cookie 保持，关闭浏览器后仍然有效。</p>
+
+  <div id="register-only" class="hidden">
+    <p class="hint" style="color:#ffd60a;">检测到尚未创建管理员账户。首位注册者将成为本站唯一管理员，此后注册入口自动关闭。</p>
+  </div>
+
+  <label>用户名（3-20 位英文 / 数字 / _ / -）</label>
+  <input id="username-input" autocomplete="username">
+  <label>密码（至少 8 位）</label>
+  <input type="password" id="password-input" autocomplete="current-password">
+
+  <div class="check-row" id="remember-row">
+    <label><input type="checkbox" id="remember-cb"> 保持登录 30 天</label>
+    <button class="mode-switch" id="mode-switch-btn"></button>
+  </div>
+  <div style="margin-top:14px;">
+    <button class="btn btn-primary" id="submit-btn" style="width:100%;padding:11px;">登录</button>
+  </div>
+  <div class="login-error" id="login-error"></div>
+</div>
+
+<!-- 主视图 -->
+<div id="app-view" class="hidden">
+  <div class="topbar">
+    <h1>管理后台<span class="who" id="whoami"></span></h1>
+    <div>
+      <a href="/" target="_blank" style="font-size:13px;margin-right:10px;">查看网站 ↗</a>
+      <button class="btn btn-sm" id="logout-btn">退出</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="projects">项目管理</button>
+    <button class="tab" data-tab="blog">博客管理</button>
+    <button class="tab" data-tab="settings">站点设置</button>
+  </div>
+
+  <!-- 项目模块 -->
+  <div id="tab-projects">
+    <div id="projects-list"></div>
+    <button class="btn btn-primary" id="add-project-btn">＋ 新增项目</button>
+
+    <div id="project-form" class="panel hidden" style="margin-top:16px;">
+      <h2 id="pf-title">编辑项目</h2><div class="sub">必填：ID（小写英文/数字/连字符）、中文标题、图标类名</div>
+      <div class="row2">
+        <div><label>项目 ID（英文，唯一）</label><input id="pf-id"></div>
+        <div><label>图标类名（remixicon，如 ri-article-line）</label><input id="pf-icon"></div>
+        <div><label>标题（中文）</label><input id="pf-title-zh"></div>
+        <div><label>标题（英文）</label><input id="pf-title-en"></div>
+      </div>
+      <label>描述（中文）</label><textarea id="pf-desc-zh" rows="2"></textarea>
+      <label>描述（英文）</label><textarea id="pf-desc-en" rows="2"></textarea>
+      <div class="status-line" id="pf-status"></div>
+      <h2 style="font-size:14px;margin-top:14px;">子项 / 直达入口</h2>
+      <div id="pf-subitems"></div>
+      <button class="btn btn-sm" id="pf-add-sub">＋ 添加子项</button>
+      <div class="form-ops">
+        <button class="btn btn-primary" id="pf-save">保存并发布</button>
+        <button class="btn" id="pf-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 博客模块 -->
+  <div id="tab-blog" class="hidden">
+    <div id="posts-list"></div>
+    <button class="btn btn-primary" id="add-post-btn">＋ 写新文章</button>
+
+    <div id="post-form" class="panel hidden" style="margin-top:16px;">
+      <h2 id="ptf-title">新文章</h2>
+      <div class="sub">发布时将同步写入 posts.json 与 posts/&lt;id&gt;.md，通过 CI 校验后自动更新 RSS</div>
+      <div class="row2">
+        <div><label>文章 ID（英文，唯一，决定链接）</label><input id="ptf-id" placeholder="my-new-post"></div>
+        <div><label>作者</label><input id="ptf-author" value="anliways"></div>
+        <div><label>标题</label><input id="ptf-title-input"></div>
+        <div><label>日期</label><input id="ptf-date"></div>
+      </div>
+      <label>摘要（可选，显示在列表中）</label><textarea id="ptf-summary" rows="2"></textarea>
+      <label>正文 Markdown</label><textarea id="ptf-body" class="code" placeholder="### 标题&#10;&#10;正文支持 **Markdown** 语法…"></textarea>
+      <div class="status-line" id="ptf-status"></div>
+      <div class="form-ops">
+        <button class="btn btn-primary" id="ptf-save">保存并发布</button>
+        <button class="btn" id="ptf-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 站点设置模块 -->
+  <div id="tab-settings" class="hidden">
+    <div class="sub" style="margin-bottom:12px;">写入 site-config.json，所有配置项均可选——留空的项自动使用网站内置默认值，保存后约 1 分钟部署生效。点击分组标题可展开 / 收起。</div>
+
+    <!-- 分组 1：个人资料 -->
+    <div class="sec-card" id="sec-profile">
+      <div class="sec-head"><span class="sec-title">个人资料</span><span class="sec-hint">头像 · 三处同步</span><span class="sec-caret">▾</span></div>
+      <div class="sec-body">
+        <div class="sub">应用于导航栏、主页名片与关于页三处圆形头像；可上传图片（≤2MB，保存时一并提交入库）或直接填图片地址；留空保留「an」文字占位</div>
+        <div class="row2">
+          <div>
+            <label>头像图片地址</label>
+            <input id="ab-avatar" placeholder="assets/avatar.jpg 或 https://…">
+            <div style="margin-top:8px;">
+              <label style="margin:0;">或从本机上传（点「保存并发布」时才上传）</label>
+              <input type="file" id="ab-avatar-file" accept="image/jpeg,image/png,image/webp,image/gif" style="padding:7px;font-size:12px;">
+            </div>
+            <div class="status-line" id="ab-upload-status"></div>
+          </div>
+          <div>
+            <label>预览</label>
+            <div id="ab-avatar-preview" style="width:72px;height:72px;border-radius:50%;background:#2c2c2e;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:24px;font-weight:600;overflow:hidden;">an</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分组 2：主页外观 -->
+    <div class="sec-card collapsed" id="sec-appearance">
+      <div class="sec-head"><span class="sec-title">主页外观</span><span class="sec-hint">站点名称 · 背景图 / 遮罩 / 模糊</span><span class="sec-caret">▸</span></div>
+      <div class="sec-body">
+        <div class="row2">
+          <div><label>浏览器标签标题前缀（留空使用 anliways）</label><input id="stf-title" placeholder="anliways"></div>
+        </div>
+        <div class="sub" style="margin-top:10px;">背景图片与渐变二选一：两者都留空时恢复默认纯色暗夜背景；渐变非空时优先于图片</div>
+        <div class="row2">
+          <div><label>背景图片（URL 或仓库相对路径）</label><input id="stf-bgimage" placeholder="assets/bg.jpg"></div>
+          <div><label>CSS 渐变（优先级更高）</label><input id="stf-gradient" placeholder="linear-gradient(135deg,#1a1a2e,#16213e)"></div>
+        </div>
+        <div class="row2">
+          <div><label>遮罩暗度 <span id="stf-overlay-val"></span>（0=无遮罩，1=全黑）</label><input type="range" id="stf-overlay" min="0" max="1" step="0.05"></div>
+          <div><label>背景模糊 <span id="stf-blur-val"></span>（0=清晰，最大 20px）</label><input type="range" id="stf-blur" min="0" max="20" step="1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分组 3：关于页内容 -->
+    <div class="sec-card collapsed" id="sec-about">
+      <div class="sec-head"><span class="sec-title">关于页内容</span><span class="sec-hint">标题 / 简介 / 标签（中英双语）</span><span class="sec-caret">▸</span></div>
+      <div class="sec-body">
+        <div class="sub">均为可选：留空的字段继续使用页面内置文案；中英文分别对应语言切换</div>
+        <div class="row2">
+          <div><label>主标题（中文）</label><input id="ab-title-zh" placeholder="你好，我是 anliways 👋"></div>
+          <div><label>主标题（英文）</label><input id="ab-title-en" placeholder="Hello, I'm anliways 👋"></div>
+          <div><label>副标题（中文）</label><input id="ab-sub-zh" placeholder="个人开发者 · 独立媒体人 · 效率探索者"></div>
+          <div><label>副标题（英文）</label><input id="ab-sub-en" placeholder="Indie Developer · Independent Creator · Efficiency Explorer"></div>
+        </div>
+        <label>个人简介（中文）</label><textarea id="ab-desc-zh" rows="2"></textarea>
+        <label>个人简介（英文）</label><textarea id="ab-desc-en" rows="2"></textarea>
+        <div class="sub" style="margin-top:10px;">标签：非空时覆盖内置标签（地点 / 全栈开发等）；图标留空使用通用图标；某语言留空时回退到另一语言</div>
+        <div id="ab-tags"></div>
+        <button class="btn btn-sm" id="ab-add-tag">＋ 添加标签</button>
+      </div>
+    </div>
+
+    <!-- 分组 4：社交链接 -->
+    <div class="sec-card collapsed" id="sec-social">
+      <div class="sec-head"><span class="sec-title">社交链接</span><span class="sec-hint">关于页平台列表</span><span class="sec-caret">▸</span></div>
+      <div class="sec-body">
+        <div class="sub">非空时覆盖页面内置的社交平台列表；标签留空自动显示域名，图标留空使用通用链接图标</div>
+        <div id="stf-links"></div>
+        <button class="btn btn-sm" id="stf-add-link">＋ 添加社交链接</button>
+      </div>
+    </div>
+
+    <!-- 吸底保存栏 -->
+    <div class="save-bar">
+      <span class="dirty-badge hidden" id="dirty-badge">● 有未保存更改</span>
+      <span class="status-line" id="stf-status" style="margin:0;flex:1;"></span>
+      <button class="btn" id="stf-reset">放弃修改</button>
+      <button class="btn btn-primary" id="stf-save">保存并发布</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let projects = [], posts = [];
+let loginMode = 'login'; // 'login' | 'register'
+
+/* ---------- 基础设施 ---------- */
+function toast(msg, isErr) {
+  const t = $('toast');
+  t.textContent = msg; t.className = isErr ? 'err' : ''; t.style.display = 'block';
+  clearTimeout(t._tm); t._tm = setTimeout(() => t.style.display = 'none', 3500);
+}
+const esc = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+async function api(action, payload, method) {
+  const url = '/api/auth?action=' + encodeURIComponent(action);
+  const res = await fetch(url, {
+    method: method || (payload !== undefined ? 'POST' : 'GET'),
+    headers: payload !== undefined ? { 'Content-Type': 'application/json' } : {},
+    body: payload !== undefined ? JSON.stringify(payload) : undefined,
+    credentials: 'same-origin'
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || ('请求失败 ' + res.status));
+  return data;
+}
+async function apiRead(path) {
+  const res = await fetch('/api/content?path=' + encodeURIComponent(path), { credentials: 'same-origin' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || ('读取失败 ' + res.status));
+  return data.content;
+}
+async function apiCommit(files, message) {
+  const res = await fetch('/api/content', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ files, message })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || ('提交失败 ' + res.status));
+  return data;
+}
+
+/* ---------- 登录 / 注册视图 ---------- */
+function setLoginMode(mode, registered) {
+  loginMode = mode;
+  const isReg = mode === 'register';
+  $('lv-title').textContent = isReg ? '🔧 创建管理员账户' : '🔐 anliways 管理后台';
+  $('lv-hint').textContent = isReg
+    ? '首位注册者将成为本站唯一管理员。密码经 scrypt 加盐哈希存储，请牢记。'
+    : '请使用管理员账户登录。会话通过安全 Cookie 保持，关闭浏览器后仍然有效。';
+  $('register-only').classList.toggle('hidden', !registered);
+  $('remember-row').classList.toggle('hidden', isReg);
+  $('submit-btn').textContent = isReg ? '创建账户并登录' : '登录';
+  $('mode-switch-btn').textContent = isReg ? '返回登录' : '注册新管理员';
+  $('login-error').textContent = '';
+}
+$('mode-switch-btn').onclick = () => setLoginMode(loginMode === 'login' ? 'register' : 'login', true);
+
+$('submit-btn').onclick = async () => {
+  const username = $('username-input').value.trim();
+  const password = $('password-input').value;
+  $('submit-btn').disabled = true;
+  $('login-error').textContent = '';
+  try {
+    const data = await api(loginMode, { username, password, remember: $('remember-cb').checked });
+    enterApp(data.username);
+  } catch (e) {
+    $('login-error').textContent = e.message;
+  } finally {
+    $('submit-btn').disabled = false;
+  }
+};
+$('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('submit-btn').click(); });
+
+function enterApp(username) {
+  $('login-view').classList.add('hidden');
+  $('app-view').classList.remove('hidden');
+  $('whoami').textContent = '· ' + username;
+  loadAll();
+}
+
+async function boot() {
+  // 先尝试恢复会话；未登录时探测是否已有管理员
+  try {
+    const me = await api('me');
+    enterApp(me.username);
+    return;
+  } catch (_) { /* 未登录，继续 */ }
+  try {
+    const init = await api('init');
+    setLoginMode(init.registered ? 'login' : 'register', init.registered);
+  } catch (e) {
+    setLoginMode('login', true);
+    $('login-error').textContent = e.message;
+  }
+}
+
+async function loadAll() {
+  try {
+    const [pj, ps] = await Promise.all([apiRead('projects.json'), apiRead('posts.json')]);
+    projects = JSON.parse(pj);
+    posts = JSON.parse(ps);
+    renderProjects(); renderPosts();
+  } catch (e) { toast('加载数据失败：' + e.message, true); }
+}
+
+/* ---------- 标签页 ---------- */
+let currentTab = 'projects';
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  if (t.dataset.tab === currentTab) return;
+  // 未保存保护：离开设置页前拦截确认
+  if (currentTab === 'settings' && settingsDirty && !confirm('站点设置有未保存的更改，确定离开（更改将丢失）？')) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  currentTab = t.dataset.tab;
+  $('tab-projects').classList.toggle('hidden', t.dataset.tab !== 'projects');
+  $('tab-blog').classList.toggle('hidden', t.dataset.tab !== 'blog');
+  $('tab-settings').classList.toggle('hidden', t.dataset.tab !== 'settings');
+  if (t.dataset.tab === 'settings' && !settingsLoaded) openSettings();
+});
+
+/* ---------- 项目管理 ---------- */
+function renderProjects() {
+  const box = $('projects-list');
+  box.innerHTML = projects.map((p, i) => `
+    <div class="list-item">
+      <div><div class="t">${esc(p.title_zh)} <span style="color:rgba(255,255,255,.35);font-weight:400;">${esc(p.title_en || '')}</span></div>
+      <div class="s">${esc(p.id)} · ${(p.subItems || []).length} 个子项</div></div>
+      <div class="ops">
+        <button class="btn btn-sm" data-edit="${i}">编辑</button>
+        <button class="btn btn-sm btn-danger" data-del="${i}">删除</button>
+      </div>
+    </div>`).join('') || '<p style="color:rgba(255,255,255,.4);font-size:13px;">暂无项目</p>';
+  box.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openProjectForm(+b.dataset.edit));
+  box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteProject(+b.dataset.del));
+}
+let pfEditIdx = -1;
+function subItemCard(s = {}) {
+  const div = document.createElement('div');
+  div.className = 'subitem-card';
+  div.innerHTML = `
+    <button class="btn btn-sm btn-danger del">删除</button>
+    <div class="row2">
+      <div><label>子项标题（中文）</label><input class="si-tz" value="${esc(s.title_zh || '')}"></div>
+      <div><label>子项标题（英文）</label><input class="si-te" value="${esc(s.title_en || '')}"></div>
+      <div><label>子项描述（中文）</label><input class="si-dz" value="${esc(s.desc_zh || '')}"></div>
+      <div><label>子项描述（英文）</label><input class="si-de" value="${esc(s.desc_en || '')}"></div>
+      <div><label>图标类名</label><input class="si-icon" value="${esc(s.icon || '')}"></div>
+      <div><label>链接</label><input class="si-link" value="${esc(s.link || '')}"></div>
+    </div>`;
+  div.querySelector('.del').onclick = () => div.remove();
+  return div;
+}
+function openProjectForm(idx) {
+  pfEditIdx = idx;
+  const p = idx >= 0 ? projects[idx] : { id: '', title_zh: '', title_en: '', icon: '', desc_zh: '', desc_en: '', subItems: [] };
+  $('pf-title').textContent = idx >= 0 ? '编辑项目：' + p.title_zh : '新增项目';
+  $('pf-id').value = p.id; $('pf-id').readOnly = idx >= 0;
+  $('pf-icon').value = p.icon || '';
+  $('pf-title-zh').value = p.title_zh || ''; $('pf-title-en').value = p.title_en || '';
+  $('pf-desc-zh').value = p.desc_zh || ''; $('pf-desc-en').value = p.desc_en || '';
+  const sub = $('pf-subitems'); sub.innerHTML = '';
+  (p.subItems || []).forEach(s => sub.appendChild(subItemCard(s)));
+  $('pf-status').textContent = '';
+  $('project-form').classList.remove('hidden');
+  $('project-form').scrollIntoView({ behavior: 'smooth' });
+}
+$('pf-add-sub').onclick = () => $('pf-subitems').appendChild(subItemCard());
+$('add-project-btn').onclick = () => openProjectForm(-1);
+$('pf-cancel').onclick = () => $('project-form').classList.add('hidden');
+$('pf-save').onclick = async () => {
+  const id = $('pf-id').value.trim();
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) return $('pf-status').textContent = 'ID 仅限小写英文、数字、连字符';
+  if (!$('pf-title-zh').value.trim()) return $('pf-status').textContent = '中文标题必填';
+  if (!$('pf-icon').value.trim()) return $('pf-status').textContent = '图标类名必填（如 ri-article-line）';
+  if (pfEditIdx < 0 && projects.some(p => p.id === id)) return $('pf-status').textContent = 'ID 已存在';
+  const subItems = [...$('pf-subitems').children].map(c => {
+    const g = k => c.querySelector('.' + k).value.trim();
+    const s = { title_zh: g('si-tz'), title_en: g('si-te'), desc_zh: g('si-dz'), desc_en: g('si-de'), icon: g('si-icon'), link: g('si-link') };
+    return Object.fromEntries(Object.entries(s).filter(([, v]) => v));
+  });
+  const item = { id, title_zh: $('pf-title-zh').value.trim(), title_en: $('pf-title-en').value.trim(), icon: $('pf-icon').value.trim(), desc_zh: $('pf-desc-zh').value.trim(), desc_en: $('pf-desc-en').value.trim(), subItems };
+  if (pfEditIdx >= 0) projects[pfEditIdx] = item; else projects.push(item);
+  $('pf-status').textContent = '正在提交…';
+  try {
+    await apiCommit(
+      [{ path: 'projects.json', content: JSON.stringify(projects, null, 2) + '\n' }],
+      (pfEditIdx >= 0 ? 'chore(admin): 更新项目 ' : 'feat(admin): 新增项目 ') + id);
+    toast('✅ 已提交，Vercel 部署约 1 分钟后生效');
+    $('project-form').classList.add('hidden');
+    renderProjects();
+  } catch (e) {
+    loadAll().then(() => $('project-form').classList.add('hidden')); // 以仓库数据为准回滚本地状态
+    $('pf-status').textContent = '提交失败：' + e.message;
+  }
+};
+async function deleteProject(idx) {
+  const p = projects[idx];
+  if (!confirm('确定删除项目「' + p.title_zh + '」？将直接发布到线上。')) return;
+  projects.splice(idx, 1);
+  try {
+    await apiCommit([{ path: 'projects.json', content: JSON.stringify(projects, null, 2) + '\n' }], 'chore(admin): 删除项目 ' + p.id);
+    toast('✅ 已删除并提交'); renderProjects();
+  } catch (e) { projects.splice(idx, 0, p); toast('删除失败：' + e.message, true); }
+}
+
+/* ---------- 博客管理 ---------- */
+const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+function zhDate() { const d = new Date(); return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+function renderPosts() {
+  const box = $('posts-list');
+  box.innerHTML = posts.map((p, i) => `
+    <div class="list-item">
+      <div><div class="t">${esc(p.title)}</div>
+      <div class="s">${esc(p.id)} · ${esc(p.date || '')}${p.summary ? ' · ' + esc(p.summary) : ''}</div></div>
+      <div class="ops">
+        <button class="btn btn-sm" data-editp="${i}">编辑</button>
+        <button class="btn btn-sm btn-danger" data-delp="${i}">删除</button>
+      </div>
+    </div>`).join('') || '<p style="color:rgba(255,255,255,.4);font-size:13px;">暂无文章</p>';
+  box.querySelectorAll('[data-editp]').forEach(b => b.onclick = () => openPostForm(+b.dataset.editp));
+  box.querySelectorAll('[data-delp]').forEach(b => b.onclick = () => deletePost(+b.dataset.delp));
+}
+let pfEditPost = null;
+async function openPostForm(idx) {
+  pfEditPost = idx >= 0 ? posts[idx].id : null;
+  $('ptf-title').textContent = idx >= 0 ? '编辑文章：' + posts[idx].title : '新文章';
+  if (idx >= 0) {
+    const p = posts[idx];
+    $('ptf-id').value = p.id; $('ptf-id').readOnly = true;
+    $('ptf-title-input').value = p.title || ''; $('ptf-author').value = p.author || 'anliways';
+    $('ptf-date').value = p.date || ''; $('ptf-summary').value = p.summary || '';
+    $('ptf-status').textContent = '正在加载正文…';
+    try {
+      $('ptf-body').value = await apiRead('posts/' + p.id + '.md');
+      $('ptf-status').textContent = '';
+    } catch (e) { $('ptf-status').textContent = '正文加载失败：' + e.message; }
+  } else {
+    $('ptf-id').value = ''; $('ptf-id').readOnly = false;
+    $('ptf-title-input').value = ''; $('ptf-author').value = 'anliways';
+    $('ptf-date').value = zhDate(); $('ptf-summary').value = ''; $('ptf-body').value = '';
+    $('ptf-status').textContent = '';
+  }
+  $('post-form').classList.remove('hidden');
+  $('post-form').scrollIntoView({ behavior: 'smooth' });
+}
+$('add-post-btn').onclick = () => openPostForm(-1);
+$('ptf-cancel').onclick = () => $('post-form').classList.add('hidden');
+$('ptf-save').onclick = async () => {
+  const id = $('ptf-id').value.trim();
+  const title = $('ptf-title-input').value.trim();
+  if (!ID_RE.test(id)) return $('ptf-status').textContent = 'ID 仅限小写英文、数字、连字符';
+  if (!title) return $('ptf-status').textContent = '标题必填';
+  if (!$('ptf-body').value.trim()) return $('ptf-status').textContent = '正文不能为空';
+  const isNew = !pfEditPost;
+  if (isNew && posts.some(p => p.id === id)) return $('ptf-status').textContent = 'ID 已存在';
+  const entry = { id, title, date: $('ptf-date').value.trim() || zhDate(), author: $('ptf-author').value.trim() || 'anliways' };
+  const summary = $('ptf-summary').value.trim();
+  if (summary) entry.summary = summary;
+  const nextPosts = posts.filter(p => p.id !== id).concat([entry]);
+  // CI 校验规则：posts.json 与 posts/ 目录必须一一对应
+  const files = [{ path: 'posts.json', content: JSON.stringify(nextPosts, null, 2) + '\n' }, { path: 'posts/' + id + '.md', content: $('ptf-body').value }];
+  $('ptf-status').textContent = '正在提交…';
+  try {
+    await apiCommit(files, (isNew ? 'post(admin): 发布文章 ' : 'post(admin): 更新文章 ') + id);
+    posts = nextPosts;
+    toast('✅ 已提交，部署与 RSS 更新约 1-2 分钟');
+    $('post-form').classList.add('hidden');
+    renderPosts();
+  } catch (e) { $('ptf-status').textContent = '提交失败：' + e.message; }
+};
+async function deletePost(idx) {
+  const p = posts[idx];
+  if (!confirm('确定删除文章「' + p.title + '」？将同时删除 Markdown 文件并发布。')) return;
+  const nextPosts = posts.filter((_, i) => i !== idx);
+  try {
+    await apiCommit([
+      { path: 'posts.json', content: JSON.stringify(nextPosts, null, 2) + '\n' },
+      { path: 'posts/' + p.id + '.md', content: null }
+    ], 'post(admin): 删除文章 ' + p.id);
+    posts = nextPosts;
+    toast('✅ 已删除并提交'); renderPosts();
+  } catch (e) { toast('删除失败：' + e.message, true); }
+}
+
+/* ---------- 站点设置 ---------- */
+let settingsLoaded = false;
+let settingsDirty = false;
+const DEFAULTS = { overlay: 0.45, blur: 0 };
+
+/* 未保存状态跟踪：任何输入或增删条目都标记 dirty，保存/放弃后清除 */
+function markDirty() {
+  if (!settingsDirty) {
+    settingsDirty = true;
+    $('dirty-badge').classList.remove('hidden');
+    $('stf-save').classList.add('unsaved');
+  }
+}
+function clearDirty() {
+  settingsDirty = false;
+  $('dirty-badge').classList.add('hidden');
+  $('stf-save').classList.remove('unsaved');
+}
+// 事件委托：覆盖所有输入控件与动态添加的卡片内输入
+$('tab-settings').addEventListener('input', markDirty);
+$('tab-settings').addEventListener('click', e => {
+  // 仅增删条目算作修改；折叠/展开卡片不算
+  if (e.target.closest('#stf-add-link, #ab-add-tag, .del')) markDirty();
+});
+// 刷新/关闭页面前拦截
+window.addEventListener('beforeunload', e => {
+  if (settingsDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+/* 分组折叠：点击卡片标题切换展开/收起 */
+document.querySelectorAll('.sec-head').forEach(head => {
+  head.onclick = () => {
+    const card = head.parentElement;
+    card.classList.toggle('collapsed');
+    head.querySelector('.sec-caret').textContent = card.classList.contains('collapsed') ? '▸' : '▾';
+  };
+});
+
+function socialLinkCard(l = {}) {
+  const div = document.createElement('div');
+  div.className = 'subitem-card';
+  div.innerHTML = `
+    <button class="btn btn-sm btn-danger del">删除</button>
+    <div class="row2">
+      <div><label>链接 URL（必填，http/https 开头）</label><input class="sl-url" value="${esc(l.url || '')}" placeholder="https://github.com/Anliways"></div>
+      <div><label>显示标签（留空显示域名）</label><input class="sl-label" value="${esc(l.label || '')}" placeholder="GitHub"></div>
+      <div><label>图标类名（remixicon，留空用通用图标）</label><input class="sl-icon" value="${esc(l.icon || '')}" placeholder="ri-links-line"></div>
+    </div>`;
+  div.querySelector('.del').onclick = () => div.remove();
+  return div;
+}
+
+function syncRangeLabels() {
+  $('stf-overlay-val').textContent = $('stf-overlay').value;
+  $('stf-blur-val').textContent = $('stf-blur').value + 'px';
+}
+
+async function openSettings() {
+  $('stf-status').textContent = '正在加载配置…';
+  try {
+    const cfg = JSON.parse(await apiRead('site-config.json'));
+    $('stf-title').value = cfg.siteTitle || '';
+    const bg = cfg.homeBackground || {};
+    $('stf-bgimage').value = bg.image || '';
+    $('stf-gradient').value = bg.gradient || '';
+    $('stf-overlay').value = typeof bg.overlay === 'number' ? bg.overlay : DEFAULTS.overlay;
+    $('stf-blur').value = typeof bg.blur === 'number' ? bg.blur : DEFAULTS.blur;
+    const box = $('stf-links'); box.innerHTML = '';
+    (Array.isArray(cfg.socialLinks) ? cfg.socialLinks : []).forEach(l => box.appendChild(socialLinkCard(l)));
+    // 头像与关于页
+    const pf = cfg.profile || {};
+    $('ab-avatar').value = pf.avatar || '';
+    syncAvatarPreview(pf.avatar || '');
+    $('ab-title-zh').value = pf.titleZh || ''; $('ab-title-en').value = pf.titleEn || '';
+    $('ab-sub-zh').value = pf.subtitleZh || ''; $('ab-sub-en').value = pf.subtitleEn || '';
+    $('ab-desc-zh').value = pf.descZh || ''; $('ab-desc-en').value = pf.descEn || '';
+    const tagBox = $('ab-tags'); tagBox.innerHTML = '';
+    (Array.isArray(pf.tags) ? pf.tags : []).forEach(t => tagBox.appendChild(aboutTagCard(t)));
+    syncRangeLabels();
+    pendingAvatar = null; $('ab-avatar-file').value = ''; $('ab-upload-status').textContent = '';
+    $('stf-status').textContent = '';
+  } catch (e) {
+    $('stf-title').value = ''; $('stf-bgimage').value = ''; $('stf-gradient').value = '';
+    $('stf-overlay').value = DEFAULTS.overlay; $('stf-blur').value = DEFAULTS.blur;
+    $('stf-links').innerHTML = '';
+    $('ab-avatar').value = ''; syncAvatarPreview('');
+    $('ab-title-zh').value = ''; $('ab-title-en').value = '';
+    $('ab-sub-zh').value = ''; $('ab-sub-en').value = '';
+    $('ab-desc-zh').value = ''; $('ab-desc-en').value = '';
+    $('ab-tags').innerHTML = '';
+    syncRangeLabels();
+    $('stf-status').textContent = '配置加载失败（' + e.message + '），已回退默认值；直接保存将生成全新配置';
+  }
+  // 每次打开：重置折叠状态（仅展开第一组）与未保存标记
+  document.querySelectorAll('.sec-card').forEach((c, i) => {
+    c.classList.toggle('collapsed', i > 0);
+    c.querySelector('.sec-caret').textContent = i > 0 ? '▸' : '▾';
+  });
+  pendingAvatar = null;
+  settingsLoaded = true;
+  clearDirty();
+}
+
+/* 头像与关于页 */
+function syncAvatarPreview(src) {
+  const pv = $('ab-avatar-preview');
+  pv.innerHTML = src ? `<img src="${esc(src)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : 'an';
+}
+function aboutTagCard(t = {}) {
+  const div = document.createElement('div');
+  div.className = 'subitem-card';
+  div.innerHTML = `
+    <button class="btn btn-sm btn-danger del">删除</button>
+    <div class="row2">
+      <div><label>图标类名（留空用通用图标）</label><input class="at-icon" value="${esc(t.icon || '')}" placeholder="ri-map-pin-2-line"></div>
+      <div><label>中文文本</label><input class="at-zh" value="${esc(t.zh || '')}" placeholder="中国"></div>
+      <div><label>英文文本（留空回退中文）</label><input class="at-en" value="${esc(t.en || '')}" placeholder="China"></div>
+    </div>`;
+  div.querySelector('.del').onclick = () => div.remove();
+  return div;
+}
+$('ab-add-tag').onclick = () => $('ab-tags').appendChild(aboutTagCard());
+$('ab-avatar').oninput = () => syncAvatarPreview($('ab-avatar').value.trim());
+
+// 选择本地图片：仅暂存（base64 + 扩展名），点「保存并发布」时与配置合并为一次原子提交
+let pendingAvatar = null; // { base64, ext, name }
+$('ab-avatar-file').onchange = () => {
+  const file = $('ab-avatar-file').files[0];
+  const st = $('ab-upload-status');
+  st.textContent = '';
+  if (!file) { pendingAvatar = null; return; }
+  if (file.size > 2 * 1024 * 1024) { pendingAvatar = null; $('ab-avatar-file').value = ''; return st.textContent = '图片超过 2MB，请压缩后再上传'; }
+  const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[file.type];
+  if (!ext) { pendingAvatar = null; return st.textContent = '仅支持 JPG / PNG / WebP / GIF'; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    pendingAvatar = { base64: dataUrl.slice(dataUrl.indexOf(',') + 1), ext, name: file.name };
+    syncAvatarPreview(dataUrl); // 暂存预览用 dataURL，无需等待上传
+    st.textContent = '已选择 ' + file.name + '（' + (file.size < 1024 ? file.size + 'B' : Math.round(file.size / 1024) + 'KB') + '），点「保存并发布」时一并上传';
+  };
+  reader.onerror = () => st.textContent = '读取文件失败';
+  reader.readAsDataURL(file);
+};
+
+$('stf-add-link').onclick = () => $('stf-links').appendChild(socialLinkCard());
+$('stf-overlay').oninput = syncRangeLabels;
+$('stf-blur').oninput = syncRangeLabels;
+$('stf-reset').onclick = () => {
+  if (settingsDirty && !confirm('放弃当前未保存的修改并重新加载配置？')) return;
+  settingsLoaded = false;
+  openSettings();
+};
+
+$('stf-save').onclick = async () => {
+  const status = $('stf-status');
+  // 暂存的新头像路径提前确定：配置与图片文件引用同一路径，单次提交保持一致
+  const newAvatarPath = pendingAvatar ? 'assets/avatar-' + Date.now() + '.' + pendingAvatar.ext : null;
+  // 组装配置：空值一律不写入，交由前端兜底逻辑取默认
+  const cfg = {};
+  const title = $('stf-title').value.trim();
+  if (title) cfg.siteTitle = title;
+
+  const bgImage = $('stf-bgimage').value.trim();
+  const bgGradient = $('stf-gradient').value.trim();
+  if (bgImage && bgGradient) return status.textContent = '背景图片与渐变只能二选一，请清空其中一个';
+  const overlay = parseFloat($('stf-overlay').value);
+  const blur = parseFloat($('stf-blur').value);
+  if (bgImage || bgGradient) {
+    cfg.homeBackground = bgGradient
+      ? { gradient: bgGradient }
+      : { image: bgImage };
+    if (!isNaN(overlay)) cfg.homeBackground.overlay = Math.min(1, Math.max(0, overlay));
+    if (!isNaN(blur)) cfg.homeBackground.blur = Math.min(20, Math.max(0, blur));
+  }
+
+  const links = [];
+  for (const card of $('stf-links').children) {
+    const url = card.querySelector('.sl-url').value.trim();
+    if (!url) continue;
+    if (!/^(https?:\/\/|\/)/.test(url)) return status.textContent = '社交链接必须以 http:// 或 https:// 开头：' + url;
+    const item = { url };
+    const label = card.querySelector('.sl-label').value.trim();
+    const icon = card.querySelector('.sl-icon').value.trim();
+    if (label) item.label = label;
+    if (icon) item.icon = icon;
+    links.push(item);
+  }
+  if (links.length) cfg.socialLinks = links;
+
+  // 头像与关于页：留空的键不写入，交由前台兜底
+  const avatar = $('ab-avatar').value.trim();
+  const pTitleZh = $('ab-title-zh').value.trim(), pTitleEn = $('ab-title-en').value.trim();
+  const pSubZh = $('ab-sub-zh').value.trim(), pSubEn = $('ab-sub-en').value.trim();
+  const pDescZh = $('ab-desc-zh').value.trim(), pDescEn = $('ab-desc-en').value.trim();
+  const tags = [];
+  for (const card of $('ab-tags').children) {
+    const zh = card.querySelector('.at-zh').value.trim();
+    const en = card.querySelector('.at-en').value.trim();
+    if (!zh && !en) continue;
+    const item = {};
+    const icon = card.querySelector('.at-icon').value.trim();
+    if (zh) item.zh = zh;
+    if (en) item.en = en;
+    if (icon) item.icon = icon;
+    tags.push(item);
+  }
+  if (avatar || pTitleZh || pTitleEn || pSubZh || pSubEn || pDescZh || pDescEn || tags.length || pendingAvatar) {
+    cfg.profile = {};
+    if (newAvatarPath || avatar) cfg.profile.avatar = newAvatarPath || avatar;
+    if (pTitleZh) cfg.profile.titleZh = pTitleZh;
+    if (pTitleEn) cfg.profile.titleEn = pTitleEn;
+    if (pSubZh) cfg.profile.subtitleZh = pSubZh;
+    if (pSubEn) cfg.profile.subtitleEn = pSubEn;
+    if (pDescZh) cfg.profile.descZh = pDescZh;
+    if (pDescEn) cfg.profile.descEn = pDescEn;
+    if (tags.length) cfg.profile.tags = tags;
+  }
+
+  status.textContent = '正在提交…';
+  try {
+    // 头像图片与配置合并为一次原子提交：成功同时生效，失败则两者都未发生（无孤儿文件）
+    const files = [];
+    if (pendingAvatar && newAvatarPath) {
+      files.push({ path: newAvatarPath, content: pendingAvatar.base64, encoding: 'base64' });
+    }
+    files.push({ path: 'site-config.json', content: JSON.stringify(cfg, null, 2) + '\n' });
+    await apiCommit(files, pendingAvatar ? 'chore(admin): 更新站点设置并上传头像' : 'chore(admin): 更新站点设置');
+    if (pendingAvatar) {
+      $('ab-avatar').value = newAvatarPath; // 提交成功后把新头像路径回填到地址输入框
+      syncAvatarPreview(newAvatarPath);
+      pendingAvatar = null;
+      $('ab-avatar-file').value = '';
+      $('ab-upload-status').textContent = '';
+    }
+    clearDirty();
+    toast('✅ 已提交，网站约 1 分钟后生效');
+    status.textContent = '';
+  } catch (e) { status.textContent = '提交失败：' + e.message; }
+};
+
+/* ---------- 退出 ---------- */
+$('logout-btn').onclick = async () => {
+  try { await api('logout'); } catch (_) {}
+  location.reload();
+};
+
+boot();
+</script>
+</body>
+</html>
