@@ -980,11 +980,12 @@
 
         @media (max-width: 640px) { .nav-container { padding: 0 24px; } .nav-links { gap: 16px; } .brand-name { display: none; } }
 
-        /* ==================== 移动端底部标签栏（iOS 风格，≤640px 接管导航） ==================== */
+        /* ==================== 移动端底部标签栏（iOS 风格，仅内页显示——跟随 has-navbar） ==================== */
         .bottom-tabbar { display: none; }
         @media (max-width: 640px) {
             /* 顶栏只保留品牌与语言按钮，四个视图由底部标签栏接管 */
             .top-navbar .nav-links { display: none; }
+            /* 首页保持干净名片（无 has-navbar）；从首页点进内页后标签栏滑入 */
             .bottom-tabbar {
                 display: flex;
                 position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
@@ -994,7 +995,11 @@
                 backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
                 border-top: 1px solid rgba(255, 255, 255, 0.08);
                 justify-content: space-around; align-items: stretch;
+                transform: translateY(110%);
+                visibility: hidden;
+                transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
             }
+            body.has-navbar .bottom-tabbar { transform: translateY(0); visibility: visible; }
             .tab-item {
                 flex: 1;
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1005,8 +1010,8 @@
             }
             .tab-item i { font-size: 20px; line-height: 1; }
             .tab-item.active { color: #0a84ff; }
-            /* 给固定标签栏让出底部空间（含 iPhone 底部安全区） */
-            body { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+            /* 内页给固定标签栏让出底部空间（含 iPhone 底部安全区） */
+            body.has-navbar { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
         }
         @media (max-width: 500px) {
             .socials-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1048,7 +1053,7 @@
         </div>
     </nav>
 
-    <!-- 移动端底部标签栏（≤640px 显示）：iOS 风格四视图直达，层级与顶栏一致，抽屉（1500+）可覆盖 -->
+    <!-- 移动端底部标签栏（≤640px、仅内页显示）：iOS 风格四视图直达，层级与顶栏一致，抽屉（1500+）可覆盖 -->
     <nav id="bottom-tabbar" class="bottom-tabbar">
         <a id="tab-profile" class="tab-item" onclick="toggleView('profile')">
             <i class="ri-home-5-line"></i>
