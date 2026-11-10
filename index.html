@@ -1980,9 +1980,56 @@
             if (!view && currentView !== 'profile') toggleView('profile');
         });
 
+        // 站点个性化配置：后台编辑的 site-config.json → 头像/关于页文案/标签/社交链接
+        // 无配置或加载失败时保持内置默认；任何字段缺省都回退对应默认值
+        async function initSiteConfig() {
+            let cfg;
+            try {
+                const res = await fetch('site-config.json', { cache: 'no-store' });
+                if (!res.ok) return;
+                cfg = await res.json();
+            } catch (e) { return; }
+            const root = (p) => /^(https?:|data:|\/)/.test(p) ? p : '/' + p;
+            const pf = cfg.profile || {};
+
+            // 头像：主页占位与关于页圆形同步替换
+            if (pf.avatar) {
+                const img = `<img src="${root(pf.avatar)}" alt="anliways" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+                document.querySelectorAll('.avatar-placeholder, .about-hero-avatar').forEach(el => { el.innerHTML = img; });
+            }
+
+            // 文案：写入 data-zh/data-en（供切换语言），并按当前语言即时生效
+            const setBilingual = (el, zh, en) => {
+                if (!el || (!zh && !en)) return;
+                if (zh) el.dataset.zh = zh;
+                if (en) el.dataset.en = en;
+                el.textContent = (currentLang === 'en' && en) ? en : (zh || en);
+            };
+            setBilingual(document.querySelector('.about-hero-title'), pf.titleZh, pf.titleEn);
+            setBilingual(document.querySelector('.about-hero-subtitle span'), pf.subtitleZh, pf.subtitleEn);
+            setBilingual(document.querySelector('.about-hero-desc'), pf.descZh, pf.descEn);
+
+            // 标签：按配置整组重建
+            if (Array.isArray(pf.tags) && pf.tags.length) {
+                const box = document.querySelector('.about-tags');
+                if (box) box.innerHTML = pf.tags.map(t =>
+                    `<span class="about-tag"><i class="${t.icon || 'ri-hashtag'}"></i> <span data-zh="${t.zh || ''}" data-en="${t.en || t.zh || ''}">${(currentLang === 'en' && t.en) ? t.en : (t.zh || t.en || '')}</span></span>`
+                ).join('');
+            }
+
+            // 社交链接：按配置整组重建（label 不分语言，icon 缺省通用链接图标）
+            if (Array.isArray(cfg.socialLinks) && cfg.socialLinks.length) {
+                const grid = document.querySelector('.socials-grid');
+                if (grid) grid.innerHTML = cfg.socialLinks.map(l =>
+                    `<a href="${l.url}" target="_blank" rel="noopener" class="social-item"><i class="${l.icon || 'ri-link'}"></i><span>${l.label || ''}</span></a>`
+                ).join('');
+            }
+        }
+
         // 页面初始化加载语言设置与可视化组件
         window.addEventListener('DOMContentLoaded', () => {
             applyLanguage();
+            initSiteConfig();
             initHeatmapTooltip();
 
             // Esc：先关抽屉，再从阅读页返回列表
