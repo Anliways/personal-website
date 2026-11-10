@@ -1841,6 +1841,7 @@
         }
 
         // 页面视图切换逻辑
+        let currentView = 'profile';
         function toggleView(target) {
             const profileView = document.getElementById('view-profile');
             const projectsView = document.getElementById('view-projects');
@@ -1916,7 +1917,26 @@
             }
 
             updateDocumentTitle();
+
+            // 同步 URL hash（#/projects 等），支持深链与刷新直达
+            currentView = target;
+            const wantHash = target === 'profile' ? '#/' : '#/' + target;
+            if (location.hash !== wantHash) location.hash = wantHash;
         }
+
+        // URL hash 深链：#/projects、#/blog、#/about
+        function parseHashView() {
+            const h = location.hash;
+            if (h === '#/projects') return 'projects';
+            if (h === '#/blog') return 'blog';
+            if (h === '#/about') return 'about';
+            return null;
+        }
+        window.addEventListener('hashchange', () => {
+            const view = parseHashView();
+            if (view && view !== currentView) toggleView(view);
+            if (!view && currentView !== 'profile') toggleView('profile');
+        });
 
         // 页面初始化加载语言设置与可视化组件
         window.addEventListener('DOMContentLoaded', () => {
@@ -1932,6 +1952,10 @@
             });
             // 阅读进度条随页面滚动更新
             window.addEventListener('scroll', updateReadingProgress, { passive: true });
+
+            // 初始路由：带 hash 访问（如 /#/projects）时直达对应视图
+            const initialView = parseHashView();
+            if (initialView && initialView !== currentView) toggleView(initialView);
         });
     </script>
 </body>

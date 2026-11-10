@@ -1,3 +1,5 @@
 .DS_Store
 .workbuddy/
 .vercel/
+.vercel
+.env*
